@@ -1,13 +1,15 @@
 """
-AI Briefing Evaluation — scores an AI-generated briefing against ground truth
+AI Briefing Evaluation — scores a data-to-text briefing against ground truth
 from the deterministic scoring engine.
 
-Metrics:
-  - Faithfulness:   Do all factual claims match the ground truth data?
-  - Completeness:   Does the briefing mention all critical items?
-  - Hallucination:  Does it invent entities or facts not in the data?
-  - Numerical accuracy: Are numbers within tolerance of actual values?
-  - Relevance:      Does it prioritise the right things?
+This is NOT RAG (no retrieval step). The pipeline is:
+  structured data (scoring engine output) -> AI prompt -> narrative briefing
+
+Metrics (data-to-text generation standard):
+  - Groundedness:  Is every claim traceable to the input data? No fabricated entities?
+  - Coverage:      Does the briefing mention all critical items from the data?
+  - Correctness:   Are numbers, percentages, and factual associations accurate?
+  - Actionability: Does the output help the ops manager make tonight's dispatch decisions?
 
 Usage:
   from eval_ai import evaluate_briefing
@@ -22,9 +24,9 @@ import re
 
 def evaluate_briefing(text, ground_truth):
     """
-    Score an AI briefing against ground truth.
+    Score an AI briefing against ground truth from the deterministic engine.
 
-    ground_truth dict should contain:
+    ground_truth dict:
       blockers:       list of {"vehicle_id", "depot", "reason"}
       post_repair:    list of {"vehicle_id", "dtc_code", "wo_id"}
       top10:          list of {"vehicle_id", "driver_id", "depot"}
@@ -32,6 +34,7 @@ def evaluate_briefing(text, ground_truth):
       driver_top5:    list of (driver_id, {"vehicle_id", "firmware", ...})
       valid_vehicles: set of valid vehicle IDs
       valid_drivers:  set of valid driver IDs
+      all_wo_ids:     set of all work order IDs in the data
     """
     if not text or len(text.strip()) < 20:
         return _empty_report("Briefing is empty or too short")
@@ -39,18 +42,16 @@ def evaluate_briefing(text, ground_truth):
     metrics = {}
     issues = []
 
-    metrics["faithfulness"] = _score_faithfulness(text, ground_truth, issues)
-    metrics["completeness"] = _score_completeness(text, ground_truth, issues)
-    metrics["hallucination"] = _score_hallucination(text, ground_truth, issues)
-    metrics["numerical_accuracy"] = _score_numerical(text, ground_truth, issues)
-    metrics["relevance"] = _score_relevance(text, ground_truth, issues)
+    metrics["groundedness"] = _score_groundedness(text, ground_truth, issues)
+    metrics["coverage"] = _score_coverage(text, ground_truth, issues)
+    metrics["correctness"] = _score_correctness(text, ground_truth, issues)
+    metrics["actionability"] = _score_actionability(text, ground_truth, issues)
 
     weights = {
-        "faithfulness": 0.30,
-        "completeness": 0.20,
-        "hallucination": 0.25,
-        "numerical_accuracy": 0.15,
-        "relevance": 0.10,
+        "groundedness": 0.35,
+        "coverage": 0.25,
+        "correctness": 0.25,
+        "actionability": 0.15,
     }
     overall = sum(metrics[k]["score"] * weights[k] for k in weights)
 
@@ -69,7 +70,7 @@ def _empty_report(reason):
         "overall_score": 0.0,
         "grade": "F",
         "metrics": {k: empty_metric for k in
-                    ["faithfulness", "completeness", "hallucination", "numerical_accuracy", "relevance"]},
+                    ["groundedness", "coverage", "correctness", "actionability"]},
         "issues": [{"severity": "critical", "message": reason}],
         "weights": {},
     }
@@ -84,14 +85,68 @@ def _grade(score):
 
 
 # ---------------------------------------------------------------------------
-#  Faithfulness — do factual claims match ground truth?
+#  Groundedness — is every claim traceable to input data? No fabrication?
+#
+#  This replaces the old "faithfulness" (a RAG term) and "hallucination"
+#  metrics. In data-to-text generation, groundedness = the output only
+#  contains information present in the structured input.
+#  Two sub-dimensions:
+#    (a) Entity grounding: every vehicle, driver, WO, DTC exists in the data
+#    (b) Relation grounding: associations (vehicle-depot, vehicle-blocker
+#        status) match the data
 # ---------------------------------------------------------------------------
 
-def _score_faithfulness(text, gt, issues):
+def _score_groundedness(text, gt, issues):
     checks = []
     text_lower = text.lower()
 
-    # Check blocker vehicle-depot associations
+    valid_vids = gt.get("valid_vehicles", set())
+    valid_dids = gt.get("valid_drivers", set())
+    blocker_vids = {b["vehicle_id"] for b in gt.get("blockers", [])}
+
+    # (a) Entity grounding — are mentioned entities real?
+
+    mentioned_vids = set(re.findall(r"V-\d+", text))
+    hallucinated_vids = mentioned_vids - valid_vids
+    if hallucinated_vids:
+        checks.append(("fail", f"Fabricated vehicles: {hallucinated_vids}"))
+        issues.append({"severity": "critical", "metric": "groundedness",
+                       "message": f"Invented vehicle IDs: {hallucinated_vids}"})
+    else:
+        checks.append(("pass", f"All {len(mentioned_vids)} vehicle IDs exist in fleet data"))
+
+    mentioned_dids = set(re.findall(r"D-\d+", text))
+    hallucinated_dids = mentioned_dids - valid_dids
+    if hallucinated_dids:
+        checks.append(("fail", f"Fabricated drivers: {hallucinated_dids}"))
+        issues.append({"severity": "critical", "metric": "groundedness",
+                       "message": f"Invented driver IDs: {hallucinated_dids}"})
+    else:
+        checks.append(("pass", f"All {len(mentioned_dids)} driver IDs exist in fleet data"))
+
+    mentioned_wos = set(re.findall(r"WO-\d+", text))
+    all_wo_ids = gt.get("all_wo_ids", set())
+    hallucinated_wos = mentioned_wos - all_wo_ids
+    if hallucinated_wos:
+        checks.append(("fail", f"Fabricated work orders: {hallucinated_wos}"))
+        issues.append({"severity": "high", "metric": "groundedness",
+                       "message": f"Invented work order IDs: {hallucinated_wos}"})
+    elif mentioned_wos:
+        checks.append(("pass", f"All {len(mentioned_wos)} work order IDs exist in data"))
+
+    mentioned_dtcs = set(re.findall(r"P\d{4}", text))
+    valid_dtcs = {"P0524", "P0217", "P0300", "P0171", "P0128", "P0420"}
+    hallucinated_dtcs = mentioned_dtcs - valid_dtcs
+    if hallucinated_dtcs:
+        checks.append(("fail", f"Fabricated DTC codes: {hallucinated_dtcs}"))
+        issues.append({"severity": "high", "metric": "groundedness",
+                       "message": f"Invented DTC codes: {hallucinated_dtcs}"})
+    elif mentioned_dtcs:
+        checks.append(("pass", f"All {len(mentioned_dtcs)} DTC codes exist in reference"))
+
+    # (b) Relation grounding — are associations correct?
+
+    # Vehicle-depot associations
     for b in gt.get("blockers", []):
         vid = b["vehicle_id"]
         depot = b.get("depot", "")
@@ -99,18 +154,28 @@ def _score_faithfulness(text, gt, issues):
             vid_idx = text_lower.find(vid.lower())
             context = text_lower[max(0, vid_idx - 150):vid_idx + 150]
             if depot.lower() in context:
-                checks.append(("pass", f"{vid} correctly associated with {depot}"))
+                checks.append(("pass", f"{vid} correctly placed at {depot}"))
             else:
                 other_depots = [d for d in ["north yard", "airport hub", "hamilton depot"]
                                 if d in context and d != depot.lower()]
                 if other_depots:
-                    checks.append(("fail", f"{vid} associated with wrong depot: {other_depots[0]} (actual: {depot})"))
-                    issues.append({"severity": "high", "metric": "faithfulness",
-                                   "message": f"{vid} placed at wrong depot"})
-                else:
-                    checks.append(("skip", f"{vid} mentioned but depot not specified nearby"))
+                    checks.append(("fail", f"{vid} placed at {other_depots[0]}, actual: {depot}"))
+                    issues.append({"severity": "high", "metric": "groundedness",
+                                   "message": f"{vid} associated with wrong depot"})
 
-    # Check post-repair fault claims
+    # Non-blockers falsely called blockers (fabricated status)
+    for vid in mentioned_vids:
+        if vid not in blocker_vids:
+            idx = text_lower.find(vid.lower())
+            if idx >= 0:
+                context = text_lower[max(0, idx - 100):idx + 100]
+                if any(w in context for w in ["do not dispatch", "blocker", "block",
+                                               "must not dispatch", "stop vehicle", "grounded"]):
+                    checks.append(("fail", f"{vid} falsely called a dispatch blocker"))
+                    issues.append({"severity": "critical", "metric": "groundedness",
+                                   "message": f"{vid} is not a blocker but AI says it is"})
+
+    # Post-repair fault relationships
     for pr in gt.get("post_repair", []):
         vid = pr["vehicle_id"]
         wo = pr.get("wo_id", "")
@@ -118,25 +183,32 @@ def _score_faithfulness(text, gt, issues):
             vid_idx = text_lower.find(vid.lower())
             context = text_lower[max(0, vid_idx - 200):vid_idx + 200]
             if "after" in context and ("repair" in context or "work order" in context or wo.lower() in context):
-                checks.append(("pass", f"{vid} correctly identified as post-repair fault"))
+                checks.append(("pass", f"{vid} post-repair relationship correctly described"))
             elif "repair" in context or wo.lower() in context:
-                checks.append(("partial", f"{vid} mentions repair but not the temporal relationship"))
+                checks.append(("partial", f"{vid} mentions repair but not the temporal sequence"))
 
-    passed = sum(1 for s, _ in checks if s == "pass")
-    partial = sum(1 for s, _ in checks if s == "partial")
+    # Score: heavily penalise fabrication
     failed = sum(1 for s, _ in checks if s == "fail")
+    partial = sum(1 for s, _ in checks if s == "partial")
+    passed = sum(1 for s, _ in checks if s == "pass")
     total = passed + partial + failed
-    score = (passed + 0.5 * partial) / max(total, 1)
+    score = max(0, (passed + 0.5 * partial) / max(total, 1))
+    if any(i["severity"] == "critical" for i in issues if i.get("metric") == "groundedness"):
+        score = min(score, 0.3)
 
-    return {"score": round(score, 3), "detail": f"{passed} correct, {partial} partial, {failed} wrong",
+    return {"score": round(score, 3),
+            "detail": f"{passed} grounded, {partial} partial, {failed} ungrounded",
             "checks": checks}
 
 
 # ---------------------------------------------------------------------------
-#  Completeness — does it mention all critical items?
+#  Coverage — does it mention all critical data points?
+#
+#  Standard data-to-text metric: what fraction of important input facts
+#  appear in the output?
 # ---------------------------------------------------------------------------
 
-def _score_completeness(text, gt, issues):
+def _score_coverage(text, gt, issues):
     checks = []
     text_lower = text.lower()
 
@@ -147,32 +219,32 @@ def _score_completeness(text, gt, issues):
             checks.append(("pass", f"Mentions blocker {vid}"))
         else:
             checks.append(("fail", f"Missing blocker {vid}"))
-            issues.append({"severity": "high", "metric": "completeness",
+            issues.append({"severity": "high", "metric": "coverage",
                            "message": f"Dispatch blocker {vid} not mentioned"})
 
-    # Must mention post-repair faults
+    # Must mention post-repair faults with DTC
     for pr in gt.get("post_repair", []):
         vid = pr["vehicle_id"]
         dtc = pr.get("dtc_code", "")
         if vid.lower() in text_lower and dtc.lower() in text_lower:
             checks.append(("pass", f"Mentions post-repair {vid}/{dtc}"))
         elif vid.lower() in text_lower:
-            checks.append(("partial", f"Mentions {vid} but not {dtc}"))
+            checks.append(("partial", f"Mentions {vid} but not fault code {dtc}"))
         else:
             checks.append(("fail", f"Missing post-repair fault {vid}/{dtc}"))
-            issues.append({"severity": "medium", "metric": "completeness",
+            issues.append({"severity": "medium", "metric": "coverage",
                            "message": f"Post-repair fault {vid}/{dtc} not mentioned"})
 
-    # Should mention data quality (duplicates, vendor overcount)
+    # Should mention data quality facts
     if "duplicate" in text_lower:
         checks.append(("pass", "Mentions duplicate alerts"))
     else:
         checks.append(("fail", "No mention of duplicate alerts"))
 
     if "vendor" in text_lower or "over-report" in text_lower or "re-rank" in text_lower:
-        checks.append(("pass", "Mentions vendor severity issues"))
+        checks.append(("pass", "Mentions vendor severity discrepancy"))
     else:
-        checks.append(("partial", "No mention of vendor severity discrepancy"))
+        checks.append(("partial", "No mention of vendor severity over-reporting"))
 
     passed = sum(1 for s, _ in checks if s == "pass")
     partial = sum(1 for s, _ in checks if s == "partial")
@@ -185,91 +257,18 @@ def _score_completeness(text, gt, issues):
 
 
 # ---------------------------------------------------------------------------
-#  Hallucination — does it invent things?
+#  Correctness — are numbers, percentages, and facts accurate?
+#
+#  Merges the old "numerical accuracy" into a broader correctness check.
+#  In data-to-text generation this measures whether the output faithfully
+#  reproduces quantitative facts from the structured input.
 # ---------------------------------------------------------------------------
 
-def _score_hallucination(text, gt, issues):
-    checks = []
-
-    valid_vids = gt.get("valid_vehicles", set())
-    valid_dids = gt.get("valid_drivers", set())
-    blocker_vids = {b["vehicle_id"] for b in gt.get("blockers", [])}
-
-    # Check vehicle IDs
-    mentioned_vids = set(re.findall(r"V-\d+", text))
-    hallucinated_vids = mentioned_vids - valid_vids
-    if hallucinated_vids:
-        checks.append(("fail", f"Hallucinated vehicles: {hallucinated_vids}"))
-        issues.append({"severity": "critical", "metric": "hallucination",
-                       "message": f"Invented vehicle IDs: {hallucinated_vids}"})
-    else:
-        checks.append(("pass", f"All {len(mentioned_vids)} vehicle IDs are valid"))
-
-    # Check driver IDs
-    mentioned_dids = set(re.findall(r"D-\d+", text))
-    hallucinated_dids = mentioned_dids - valid_dids
-    if hallucinated_dids:
-        checks.append(("fail", f"Hallucinated drivers: {hallucinated_dids}"))
-        issues.append({"severity": "critical", "metric": "hallucination",
-                       "message": f"Invented driver IDs: {hallucinated_dids}"})
-    else:
-        checks.append(("pass", f"All {len(mentioned_dids)} driver IDs are valid"))
-
-    # Check work order IDs
-    mentioned_wos = set(re.findall(r"WO-\d+", text))
-    valid_wos = {pr.get("wo_id", "") for pr in gt.get("post_repair", [])}
-    valid_wos |= {b.get("wo_id", "") for b in gt.get("blockers", []) if b.get("wo_id")}
-    all_wo_ids = gt.get("all_wo_ids", valid_wos)
-    hallucinated_wos = mentioned_wos - all_wo_ids
-    if hallucinated_wos:
-        checks.append(("fail", f"Hallucinated work orders: {hallucinated_wos}"))
-        issues.append({"severity": "high", "metric": "hallucination",
-                       "message": f"Invented work order IDs: {hallucinated_wos}"})
-    elif mentioned_wos:
-        checks.append(("pass", f"All {len(mentioned_wos)} work order IDs are valid"))
-
-    # Check DTC codes
-    mentioned_dtcs = set(re.findall(r"P\d{4}", text))
-    valid_dtcs = {"P0524", "P0217", "P0300", "P0171", "P0128", "P0420"}
-    hallucinated_dtcs = mentioned_dtcs - valid_dtcs
-    if hallucinated_dtcs:
-        checks.append(("fail", f"Hallucinated DTC codes: {hallucinated_dtcs}"))
-        issues.append({"severity": "high", "metric": "hallucination",
-                       "message": f"Invented DTC codes: {hallucinated_dtcs}"})
-    elif mentioned_dtcs:
-        checks.append(("pass", f"All {len(mentioned_dtcs)} DTC codes are valid"))
-
-    # Check non-blockers called blockers
-    text_lower = text.lower()
-    for vid in mentioned_vids:
-        if vid not in blocker_vids:
-            idx = text_lower.find(vid.lower())
-            if idx >= 0:
-                context = text_lower[max(0, idx - 100):idx + 100]
-                if any(w in context for w in ["do not dispatch", "blocker", "block", "must not dispatch",
-                                               "stop vehicle", "grounded"]):
-                    checks.append(("fail", f"{vid} falsely called a dispatch blocker"))
-                    issues.append({"severity": "critical", "metric": "hallucination",
-                                   "message": f"{vid} is not a blocker but AI says it is"})
-
-    # Score: 1.0 = no hallucinations, deduct per failure
-    failed = sum(1 for s, _ in checks if s == "fail")
-    total = len(checks)
-    score = max(0, (total - failed * 2)) / max(total, 1)
-    score = min(score, 1.0)
-
-    return {"score": round(score, 3), "detail": f"{failed} hallucinations found in {total} checks",
-            "checks": checks}
-
-
-# ---------------------------------------------------------------------------
-#  Numerical accuracy — are numbers close to actual?
-# ---------------------------------------------------------------------------
-
-def _score_numerical(text, gt, issues):
+def _score_correctness(text, gt, issues):
     checks = []
     stats = gt.get("stats", {})
 
+    # Check specific number claims against ground truth
     number_claims = {
         "total alerts": (r"(\d[\d,]*)\s*(?:raw\s+)?alerts?", "total_raw"),
         "duplicates": (r"(\d[\d,]*)\s*duplicate", "duplicates"),
@@ -291,10 +290,10 @@ def _score_numerical(text, gt, issues):
             else:
                 pct_off = abs(claimed - actual) / max(actual, 1) * 100
                 checks.append(("fail", f"{label}: claimed {claimed}, actual {actual} ({pct_off:.0f}% off)"))
-                issues.append({"severity": "medium", "metric": "numerical_accuracy",
+                issues.append({"severity": "medium", "metric": "correctness",
                                "message": f"{label}: AI says {claimed}, actual is {actual}"})
 
-    # Check duplicate percentage claims
+    # Check percentage claims
     pct_match = re.search(r"(\d+)%\s*[Dd]uplicate", text)
     if pct_match and stats.get("total_raw"):
         claimed_pct = int(pct_match.group(1))
@@ -303,30 +302,41 @@ def _score_numerical(text, gt, issues):
             checks.append(("pass", f"Duplicate %: claimed {claimed_pct}%, actual ~{actual_pct}%"))
         else:
             checks.append(("fail", f"Duplicate %: claimed {claimed_pct}%, actual ~{actual_pct}%"))
-            issues.append({"severity": "medium", "metric": "numerical_accuracy",
-                           "message": f"Duplicate percentage: AI says {claimed_pct}%, actual is ~{actual_pct}%"})
+            issues.append({"severity": "medium", "metric": "correctness",
+                           "message": f"Duplicate percentage: AI says {claimed_pct}%, actual ~{actual_pct}%"})
+
+    # Check for false "no duplicates" claim
+    no_dup = re.search(r"no\s+(?:issues?\s+with\s+)?duplicate", text, re.IGNORECASE)
+    if no_dup and stats.get("duplicates", 0) > 0:
+        checks.append(("fail", f"Claims no duplicates, but {stats['duplicates']} found"))
+        issues.append({"severity": "medium", "metric": "correctness",
+                       "message": f"Claims no duplicates but we found {stats['duplicates']}"})
 
     passed = sum(1 for s, _ in checks if s == "pass")
     failed = sum(1 for s, _ in checks if s == "fail")
     total = passed + failed
     score = passed / max(total, 1)
 
-    return {"score": round(score, 3), "detail": f"{passed}/{total} numbers accurate",
+    return {"score": round(score, 3), "detail": f"{passed}/{total} facts accurate",
             "checks": checks}
 
 
 # ---------------------------------------------------------------------------
-#  Relevance — does it prioritise the right things?
+#  Actionability — does the output help the ops manager decide?
+#
+#  Domain-specific metric (not a standard NLG metric, but critical here).
+#  A briefing can be grounded, complete, and correct but still useless
+#  if it buries the dispatch-blocking information.
 # ---------------------------------------------------------------------------
 
-def _score_relevance(text, gt, issues):
+def _score_actionability(text, gt, issues):
     checks = []
     text_lower = text.lower()
 
     blockers = gt.get("blockers", [])
     top10 = gt.get("top10", [])
 
-    # Blockers should appear before or more prominently than non-blocker action items
+    # Blockers should appear before non-blocker action items
     if blockers:
         first_blocker_pos = len(text)
         for b in blockers:
@@ -344,26 +354,39 @@ def _score_relevance(text, gt, issues):
                     non_blocker_before += 1
 
         if non_blocker_before == 0:
-            checks.append(("pass", "Blockers mentioned before lower-priority items"))
+            checks.append(("pass", "Blockers appear before lower-priority items"))
         else:
-            checks.append(("fail", f"{non_blocker_before} non-blocker items appear before blockers"))
-            issues.append({"severity": "medium", "metric": "relevance",
+            checks.append(("fail", f"{non_blocker_before} non-critical items appear before blockers"))
+            issues.append({"severity": "medium", "metric": "actionability",
                            "message": "Lower-priority items mentioned before dispatch blockers"})
 
-    # Post-repair faults should be emphasized (these are the most surprising findings)
+    # Post-repair faults should be emphasized (most surprising/dangerous)
     post_repair = gt.get("post_repair", [])
     if post_repair:
         pr_mentioned = sum(1 for pr in post_repair if pr["vehicle_id"].lower() in text_lower)
         if pr_mentioned == len(post_repair):
-            checks.append(("pass", f"All {len(post_repair)} post-repair faults mentioned"))
+            checks.append(("pass", f"All {len(post_repair)} post-repair faults surfaced"))
         elif pr_mentioned > 0:
-            checks.append(("partial", f"{pr_mentioned}/{len(post_repair)} post-repair faults mentioned"))
+            checks.append(("partial", f"{pr_mentioned}/{len(post_repair)} post-repair faults surfaced"))
         else:
-            checks.append(("fail", "No post-repair faults mentioned"))
-            issues.append({"severity": "high", "metric": "relevance",
-                           "message": "Post-repair faults are the most critical finding but AI ignored them"})
+            checks.append(("fail", "Post-repair faults not surfaced"))
+            issues.append({"severity": "high", "metric": "actionability",
+                           "message": "Post-repair faults (most critical finding) not mentioned"})
 
-    # Should mention firmware context for driver discussion
+    # Next-step language: does it tell the manager what to DO?
+    action_words = ["inspect", "dispatch", "do not", "check", "open a work order",
+                    "schedule", "re-inspect", "maintenance", "shop", "tonight", "tomorrow"]
+    action_count = sum(1 for w in action_words if w in text_lower)
+    if action_count >= 3:
+        checks.append(("pass", f"Contains actionable language ({action_count} action phrases)"))
+    elif action_count >= 1:
+        checks.append(("partial", f"Some actionable language ({action_count} action phrases)"))
+    else:
+        checks.append(("fail", "No actionable language — reads as a status report, not a decision brief"))
+        issues.append({"severity": "medium", "metric": "actionability",
+                       "message": "Briefing lacks actionable next-step language"})
+
+    # Firmware context when discussing drivers
     if "d-17" in text_lower or "driver" in text_lower:
         if "firmware" in text_lower or "4.2.1" in text_lower or "fw" in text_lower:
             checks.append(("pass", "Driver discussion includes firmware context"))
@@ -376,7 +399,8 @@ def _score_relevance(text, gt, issues):
     total = passed + partial + failed
     score = (passed + 0.5 * partial) / max(total, 1)
 
-    return {"score": round(score, 3), "detail": f"{passed} good, {partial} partial, {failed} poor priorities",
+    return {"score": round(score, 3),
+            "detail": f"{passed} actionable, {partial} partial, {failed} not actionable",
             "checks": checks}
 
 

@@ -318,9 +318,9 @@ def test_eval_metrics():
     )
     r = evaluate_briefing(perfect, gt)
     check("Perfect briefing >= A grade", r["grade"] == "A", f"got {r['grade']} ({r['overall_score']:.0%})")
-    check("Perfect: no hallucinations", r["metrics"]["hallucination"]["score"] >= 0.9)
-    check("Perfect: faithful", r["metrics"]["faithfulness"]["score"] >= 0.8)
-    check("Perfect: numerically accurate", r["metrics"]["numerical_accuracy"]["score"] >= 0.8)
+    check("Perfect: grounded", r["metrics"]["groundedness"]["score"] >= 0.8)
+    check("Perfect: correct", r["metrics"]["correctness"]["score"] >= 0.8)
+    check("Perfect: good coverage", r["metrics"]["coverage"]["score"] >= 0.8)
 
     # Hallucinated briefing should score low on hallucination
     hallucinated = (
@@ -329,8 +329,8 @@ def test_eval_metrics():
         "V-145 must not dispatch, it is a blocker."
     )
     r2 = evaluate_briefing(hallucinated, gt)
-    check("Hallucinated: low hallucination score", r2["metrics"]["hallucination"]["score"] <= 0.3,
-          f"got {r2['metrics']['hallucination']['score']:.0%}")
+    check("Hallucinated: low groundedness", r2["metrics"]["groundedness"]["score"] <= 0.3,
+          f"got {r2['metrics']['groundedness']['score']:.0%}")
     check("Hallucinated: has critical issues",
           any(i["severity"] == "critical" for i in r2["issues"]))
     check("Hallucinated: overall grade D or F", r2["grade"] in ("D", "F"),
@@ -339,8 +339,8 @@ def test_eval_metrics():
     # Incomplete briefing should lose completeness points
     incomplete = "Status: Monday Sep 21. V-137 has oil pressure issues. 134 duplicates. Vendor over-reports."
     r3 = evaluate_briefing(incomplete, gt)
-    check("Incomplete: completeness < 70%", r3["metrics"]["completeness"]["score"] < 0.7,
-          f"got {r3['metrics']['completeness']['score']:.0%}")
+    check("Incomplete: coverage < 70%", r3["metrics"]["coverage"]["score"] < 0.7,
+          f"got {r3['metrics']['coverage']['score']:.0%}")
 
     # Wrong numbers should fail numerical accuracy
     wrong_nums = (
@@ -349,9 +349,9 @@ def test_eval_metrics():
         "2199 scored alerts."
     )
     r4 = evaluate_briefing(wrong_nums, gt)
-    check("Wrong numbers: numerical accuracy < 60%",
-          r4["metrics"]["numerical_accuracy"]["score"] < 0.6,
-          f"got {r4['metrics']['numerical_accuracy']['score']:.0%}")
+    check("Wrong numbers: correctness < 60%",
+          r4["metrics"]["correctness"]["score"] < 0.6,
+          f"got {r4['metrics']['correctness']['score']:.0%}")
 
     # Empty should get F
     r5 = evaluate_briefing("", gt)
@@ -394,7 +394,7 @@ def test_html_output():
     check("HTML has disclaimer", "trust the tables" in html)
     check("HTML has print button", "Print / PDF" in html)
     check("HTML has eval scorecard", "AI Briefing Quality" in html)
-    check("HTML has eval metrics", "Faithfulness" in html and "Hallucination" in html)
+    check("HTML has eval metrics", "Groundedness" in html and "Coverage" in html)
     check("HTML has tabs", "switchTab" in html)
     check("HTML < 500KB", len(html) < 500_000, f"size={len(html)}")
 

@@ -83,7 +83,7 @@
 <div class="header">
   <div class="header-actions"><button onclick="window.print()">Print / PDF</button></div>
   <h1>Maple Freight &ndash; Dispatch Decision Board</h1>
-  <div class="sub">Monday, September 21, 2026 &middot; 6:00 PM Eastern &middot; 60 vehicles &middot; 3 depots &middot; Report generated 2026-10-16 14:47</div>
+  <div class="sub">Monday, September 21, 2026 &middot; 6:00 PM Eastern &middot; 60 vehicles &middot; 3 depots &middot; Report generated 2026-10-16 14:54</div>
 </div>
 
 <div class="content">
@@ -93,41 +93,22 @@
     <div class="section-header ai-header">
       <h2>AI Morning Briefing</h2>
       <span class="count" style="background:#dbeafe;color:#1e40af">generated from 2199 alerts</span>
-      <span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;margin-left:8px">Ollama (local) &middot; confidence: medium</span>
+      <span style="background:#eff6ff;color:#1d4ed8;border:1px solid #1d4ed8;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;margin-left:8px">Template (rule-based) &middot; confidence: verified</span>
     </div>
-    <div class="briefing-box">Dispatch Briefing - September 21st<br>
+    <div class="briefing-box">DISPATCH BRIEFING — Monday Sep 21, 6:00 PM ET — 2199 alerts scored, 4 vehicles blocked, 42 items ranked HIGH.<br>
 <br>
-Status Line<br>
+CRITICAL ACTIONS FOR TONIGHT:<br>
 <br>
-The operations team is preparing for dispatch tomorrow with a focus on addressing critical issues and ensuring smooth service delivery.<br>
+1. V-137 — Oil pressure critical (P0524) at Sep 21 14:32 ET. This is a NEW fault that appeared AFTER today's repair (WO-5540: Replaced coolant temperature sensor). DTC reference says: stop vehicle immediately. Do NOT dispatch tomorrow. Send to shop first thing for oil pressure inspection.<br>
 <br>
-Top Urgent Items (Items #4-9, top by alert count)<br>
+2. V-102 — Telematics unit removed for battery replacement. Truck parked in yard until new unit arrives. Not dispatched. Keep out of dispatch until work order closes.<br>
 <br>
-V-137: Oil Pressure Critical<br>
-Why: The oil pressure sensor malfunctioned at 2026-09-21 15:41 ET. This is a critical issue that requires immediate attention to prevent engine damage.<br>
+3. V-158 — Misfire inspection. Booked first thing 2026-09-22. Keep out of dispatch until work order closes.<br>
 <br>
-Note about Data Quality<br>
 <br>
-The data quality for the past week has been excellent, with only minimal duplicates and no significant noise levels detected from OTA alerts (Over-the-Air). The vendor's original marking of 313 as HIGH due to P0420 catalyst issues was corrected after further analysis. This demonstrates effective use of telematics tools in maintaining quality control.<br>
+DATA QUALITY NOTES: 134 duplicate alerts removed. Vendor marked 313 alerts HIGH but our re-ranking using DTC reference urgency reduces this to 42. Firmware 4.2.1 vehicles show ~40% more harsh-event alerts due to improved sensor sensitivity — compare drivers on adjusted scores, not raw counts.<br>
 <br>
-Drivers Leaderboard<br>
-- D-58 on V-158: With a total alert count of 74 and an adjusted score, D-37 is listed as the top driver with 96 alerts.<br>
-  <br>
-<br>
-Summary<br>
-The operations team has identified several critical issues across various depots. The highest priority involves resolving oil pressure sensor malfunction at V-158 to prevent engine damage in North Yard on September 24th.<br>
-<br>
-Next Steps:<br>
-1. Immediate Action: Replace the coolant temperature and intake manifold gaskets for vehicles with severe harsh braking.<br>
-   <br>
-<br>
-This briefing outlines key actions, drivers' performance metrics, data quality improvements, and next steps required by dispatch tomorrow to ensure smooth service delivery across all depots in Maple Freight's fleet.<br>
-<br>
-Dispatch Team:<br>
-- D.17 on V.-42: Adjusted score 1309.8 km driven.<br>
-  <br>
-<br>
-End of Dispatch Briefing</div>
+D-17 NOTE: Highest alert count but also highest mileage (3,650 km) and runs fw 4.2.1. After adjusting for mileage and firmware, D-17 still ranks high — coaching is warranted — but the gap vs. other drivers is smaller than raw counts suggest. Review specific HIGH events, not the total count.</div>
     <div style="padding:8px 20px 14px;font-size:11px;color:#9ca3af;border-top:1px solid #f3f4f6">
       This briefing is AI-generated and validated against the scored data. All numbers in the stats bar,
       dispatch blockers, and action items below come from the deterministic scoring engine — not the AI.
@@ -135,10 +116,10 @@ End of Dispatch Briefing</div>
     </div>
     <div style="padding:16px 20px">
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
-        <div style="width:56px;height:56px;border-radius:50%;background:#dc2626;color:#fff;
-             display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800">F</div>
+        <div style="width:56px;height:56px;border-radius:50%;background:#65a30d;color:#fff;
+             display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800">B</div>
         <div>
-          <div style="font-size:18px;font-weight:700">AI Briefing Quality: 42%</div>
+          <div style="font-size:18px;font-weight:700">AI Briefing Quality: 90%</div>
           <div style="font-size:12px;color:#6b7280">Evaluated against deterministic engine ground truth</div>
         </div>
       </div>
@@ -150,71 +131,58 @@ End of Dispatch Briefing</div>
           <th style="text-align:center;font-size:11px;color:#9ca3af;padding:4px 8px">WEIGHT</th>
         </tr></thead>
         <tbody><tr>
-          <td style="font-weight:600;font-size:13px">Faithfulness</td>
-          <td style="width:50%">
-            <div style="background:#f3f4f6;border-radius:4px;height:18px;position:relative">
-              <div style="background:#dc2626;border-radius:4px;height:100%;width:0%;min-width:2px"></div>
-              <span style="position:absolute;right:6px;top:1px;font-size:11px;color:#374151">0%</span>
-            </div>
-          </td>
-          <td style="font-size:12px;color:#6b7280">0 correct, 0 partial, 0 wrong</td>
-          <td style="font-size:11px;color:#9ca3af;text-align:center">30%</td>
-        </tr>
-<tr>
-          <td style="font-weight:600;font-size:13px">Completeness</td>
-          <td style="width:50%">
-            <div style="background:#f3f4f6;border-radius:4px;height:18px;position:relative">
-              <div style="background:#d97706;border-radius:4px;height:100%;width:50%;min-width:2px"></div>
-              <span style="position:absolute;right:6px;top:1px;font-size:11px;color:#374151">50%</span>
-            </div>
-          </td>
-          <td style="font-size:12px;color:#6b7280">4/9 items covered, 4 missing</td>
-          <td style="font-size:11px;color:#9ca3af;text-align:center">20%</td>
-        </tr>
-<tr>
-          <td style="font-weight:600;font-size:13px">Hallucination</td>
+          <td style="font-weight:600;font-size:13px">Groundedness</td>
           <td style="width:50%">
             <div style="background:#f3f4f6;border-radius:4px;height:18px;position:relative">
               <div style="background:#16a34a;border-radius:4px;height:100%;width:100%;min-width:2px"></div>
               <span style="position:absolute;right:6px;top:1px;font-size:11px;color:#374151">100%</span>
             </div>
           </td>
-          <td style="font-size:12px;color:#6b7280">0 hallucinations found in 3 checks</td>
-          <td style="font-size:11px;color:#9ca3af;text-align:center">25%</td>
+          <td style="font-size:12px;color:#6b7280">5 grounded, 0 partial, 0 ungrounded</td>
+          <td style="font-size:11px;color:#9ca3af;text-align:center">35%</td>
         </tr>
 <tr>
-          <td style="font-weight:600;font-size:13px">Numerical Accuracy</td>
-          <td style="width:50%">
-            <div style="background:#f3f4f6;border-radius:4px;height:18px;position:relative">
-              <div style="background:#dc2626;border-radius:4px;height:100%;width:0%;min-width:2px"></div>
-              <span style="position:absolute;right:6px;top:1px;font-size:11px;color:#374151">0%</span>
-            </div>
-          </td>
-          <td style="font-size:12px;color:#6b7280">0/1 numbers accurate</td>
-          <td style="font-size:11px;color:#9ca3af;text-align:center">15%</td>
-        </tr>
-<tr>
-          <td style="font-weight:600;font-size:13px">Relevance</td>
+          <td style="font-weight:600;font-size:13px">Coverage</td>
           <td style="width:50%">
             <div style="background:#f3f4f6;border-radius:4px;height:18px;position:relative">
               <div style="background:#d97706;border-radius:4px;height:100%;width:66%;min-width:2px"></div>
               <span style="position:absolute;right:6px;top:1px;font-size:11px;color:#374151">67%</span>
             </div>
           </td>
-          <td style="font-size:12px;color:#6b7280">1 good, 2 partial, 0 poor priorities</td>
-          <td style="font-size:11px;color:#9ca3af;text-align:center">10%</td>
+          <td style="font-size:12px;color:#6b7280">6/9 items covered, 3 missing</td>
+          <td style="font-size:11px;color:#9ca3af;text-align:center">25%</td>
+        </tr>
+<tr>
+          <td style="font-weight:600;font-size:13px">Correctness</td>
+          <td style="width:50%">
+            <div style="background:#f3f4f6;border-radius:4px;height:18px;position:relative">
+              <div style="background:#16a34a;border-radius:4px;height:100%;width:100%;min-width:2px"></div>
+              <span style="position:absolute;right:6px;top:1px;font-size:11px;color:#374151">100%</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:#6b7280">3/3 facts accurate</td>
+          <td style="font-size:11px;color:#9ca3af;text-align:center">25%</td>
+        </tr>
+<tr>
+          <td style="font-weight:600;font-size:13px">Actionability</td>
+          <td style="width:50%">
+            <div style="background:#f3f4f6;border-radius:4px;height:18px;position:relative">
+              <div style="background:#16a34a;border-radius:4px;height:100%;width:87%;min-width:2px"></div>
+              <span style="position:absolute;right:6px;top:1px;font-size:11px;color:#374151">88%</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:#6b7280">3 actionable, 1 partial, 0 not actionable</td>
+          <td style="font-size:11px;color:#9ca3af;text-align:center">15%</td>
         </tr>
 </tbody>
       </table>
       <div style="margin-top:12px;padding:10px 16px;background:#fef2f2;
                          border-radius:6px;border:1px solid #fecaca">
           <div style="font-size:12px;font-weight:600;color:#991b1b;margin-bottom:6px">
-            Issues Found (5)</div>
-          <div style="padding:4px 0;font-size:12px"><span style="color:#ea580c;font-weight:700;margin-right:6px">[!]</span>Dispatch blocker V-102 not mentioned</div>
-<div style="padding:4px 0;font-size:12px"><span style="color:#ea580c;font-weight:700;margin-right:6px">[!]</span>Dispatch blocker V-108 not mentioned</div>
+            Issues Found (3)</div>
+          <div style="padding:4px 0;font-size:12px"><span style="color:#ea580c;font-weight:700;margin-right:6px">[!]</span>Dispatch blocker V-108 not mentioned</div>
 <div style="padding:4px 0;font-size:12px"><span style="color:#d97706;font-weight:700;margin-right:6px">[~]</span>Post-repair fault V-108/P0217 not mentioned</div>
 <div style="padding:4px 0;font-size:12px"><span style="color:#d97706;font-weight:700;margin-right:6px">[~]</span>Post-repair fault V-108/P0524 not mentioned</div>
-<div style="padding:4px 0;font-size:12px"><span style="color:#d97706;font-weight:700;margin-right:6px">[~]</span>total alerts: AI says 96, actual is 2380</div>
 </div>
       <div style="margin-top:14px;text-align:right">
         <a href="eval_explained.html" target="_blank"

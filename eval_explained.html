@@ -23,7 +23,7 @@
   .intro { background: var(--card); border: 1px solid var(--border); border-radius: 8px;
            padding: 24px; margin-bottom: 32px; }
   .intro h2 { font-size: 18px; margin-bottom: 12px; }
-  .intro p { color: var(--muted); }
+  .intro p { color: var(--muted); margin-bottom: 10px; }
   .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px;
                  margin-bottom: 20px; overflow: hidden; }
   .metric-header { padding: 16px 24px; border-bottom: 1px solid var(--border);
@@ -52,10 +52,19 @@
   .trust-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
                padding: 20px 24px; margin-top: 32px; }
   .trust-box h3 { color: var(--blue); margin-bottom: 8px; }
+  .how-box { background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+             padding: 24px; margin-top: 24px; margin-bottom: 20px; }
+  .how-box h2 { font-size: 18px; margin-bottom: 14px; }
+  .pipeline { display: flex; align-items: center; gap: 0; flex-wrap: wrap; justify-content: center; margin: 16px 0; }
+  .pipeline-step { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px;
+                   padding: 10px 16px; font-size: 13px; font-weight: 600; text-align: center; }
+  .pipeline-arrow { font-size: 20px; color: #9ca3af; padding: 0 8px; }
   @media (max-width: 640px) {
     .header { padding: 16px; }
     .content { padding: 16px 8px; }
     .metric-header { flex-wrap: wrap; gap: 8px; }
+    .pipeline { flex-direction: column; }
+    .pipeline-arrow { transform: rotate(90deg); }
   }
   @media print {
     body { font-size: 12px; }
@@ -79,188 +88,178 @@
     <p>
       Every time this tool runs, the AI writes a morning briefing summarizing your alert data.
       Before that briefing reaches you, we automatically check it against the same data the
-      scoring engine uses — the "ground truth." The scorecard on the main report tells you
+      scoring engine uses. The scorecard on the main report tells you
       how trustworthy this particular briefing is, so you know when to rely on it and when
       to look at the tables instead.
     </p>
+    <p>
+      The AI doesn't search for information (this isn't a search engine). It reads the structured
+      data our scoring engine produces and writes a narrative summary of it. The metrics below
+      measure how well that summary represents the data it was given.
+    </p>
   </div>
 
-  <!-- FAITHFULNESS -->
+  <div class="how-box">
+    <h2>How the pipeline works</h2>
+    <div class="pipeline">
+      <div class="pipeline-step">Alert CSVs<br><span style="font-weight:400;font-size:12px;color:#6b7280">2,380 raw alerts</span></div>
+      <div class="pipeline-arrow">&rarr;</div>
+      <div class="pipeline-step">Scoring Engine<br><span style="font-weight:400;font-size:12px;color:#6b7280">deterministic rules</span></div>
+      <div class="pipeline-arrow">&rarr;</div>
+      <div class="pipeline-step">Structured Summary<br><span style="font-weight:400;font-size:12px;color:#6b7280">blockers, scores, stats</span></div>
+      <div class="pipeline-arrow">&rarr;</div>
+      <div class="pipeline-step" style="background:#fef9c3;border-color:#ca8a04">AI Model<br><span style="font-weight:400;font-size:12px;color:#6b7280">writes the narrative</span></div>
+      <div class="pipeline-arrow">&rarr;</div>
+      <div class="pipeline-step" style="background:#f0fdf4;border-color:#16a34a">Eval Check<br><span style="font-weight:400;font-size:12px;color:#6b7280">4 metrics scored</span></div>
+    </div>
+    <p style="font-size:13px;color:#6b7280;text-align:center">
+      The eval compares the AI's narrative (step 4) back against the structured summary (step 3).
+      The scoring engine's output is always the source of truth.
+    </p>
+  </div>
+
+  <!-- GROUNDEDNESS -->
   <div class="metric-card">
     <div class="metric-header">
-      <div class="metric-icon" style="background:#16a34a">F</div>
+      <div class="metric-icon" style="background:#16a34a">G</div>
       <div>
-        <h3>Faithfulness</h3>
-        <div style="font-size:13px;color:#6b7280">Are the AI's claims actually true?</div>
+        <h3>Groundedness</h3>
+        <div style="font-size:13px;color:#6b7280">Is every claim traceable to the data?</div>
       </div>
-      <span class="weight">Weight: 30%</span>
+      <span class="weight">Weight: 35%</span>
     </div>
     <div class="metric-body">
       <h4>What it checks</h4>
       <p>
-        When the AI says "V-137 is at North Yard" or "V-108 had a post-repair fault after WO-5512,"
-        we verify those claims against the actual data. Does V-137 really belong to North Yard?
-        Was WO-5512 really the work order for V-108? Every factual claim the AI makes is
-        cross-referenced.
+        Two things: <strong>entity grounding</strong> (every vehicle, driver, work order, and fault
+        code the AI mentions actually exists in the data) and <strong>relation grounding</strong>
+        (associations like "V-137 at North Yard" or "V-108 is a dispatch blocker" match reality).
       </p>
 
-      <h4>Why it matters</h4>
+      <h4>Why it's the highest weight (35%)</h4>
       <p>
-        If the AI puts V-137 at the wrong depot, the Hamilton maintenance lead wastes time looking
-        for a truck that's actually at North Yard. Wrong facts lead to wrong decisions.
+        A briefing that mentions trucks that don't exist, or says a truck is grounded when it's not,
+        causes real operational damage. This is the most dangerous way an AI can fail: making up facts
+        that look authoritative. We give this the highest weight because a single fabricated vehicle
+        or false blocker status can derail the entire morning dispatch.
       </p>
 
       <div class="example good">
-        <strong>100% score:</strong> "V-137 (North Yard) has an oil pressure fault after WO-5540 repair."
-        — Every fact matches the data.
+        <strong>High score:</strong> "V-137 (North Yard) has an oil pressure fault after WO-5540 repair."
+        — Every entity exists, the depot is correct, the work order matches.
       </div>
       <div class="example bad">
-        <strong>Low score:</strong> "V-137 (Airport Hub) needs attention." — Wrong depot.
+        <strong>Low score:</strong> "V-270 needs immediate attention" (V-270 doesn't exist),
+        or "V-145 must not dispatch" (V-145 is not actually a blocker).
       </div>
     </div>
   </div>
 
-  <!-- HALLUCINATION -->
+  <!-- COVERAGE -->
   <div class="metric-card">
     <div class="metric-header">
-      <div class="metric-icon" style="background:#dc2626">H</div>
+      <div class="metric-icon" style="background:#d97706">C</div>
       <div>
-        <h3>Hallucination</h3>
-        <div style="font-size:13px;color:#6b7280">Did the AI make things up?</div>
+        <h3>Coverage</h3>
+        <div style="font-size:13px;color:#6b7280">Did the AI mention everything important?</div>
       </div>
       <span class="weight">Weight: 25%</span>
     </div>
     <div class="metric-body">
       <h4>What it checks</h4>
       <p>
-        We verify that every vehicle ID (V-101 to V-160), driver ID (D-01 to D-60),
-        work order number, and fault code the AI mentions actually exists in the data.
-        We also check that the AI doesn't call a vehicle a "dispatch blocker" when it
-        isn't one — that's a hallucinated status, not just a hallucinated name.
-      </p>
-
-      <h4>Why it matters</h4>
-      <p>
-        This is the most dangerous failure. If the AI says "V-270 needs immediate attention"
-        and V-270 doesn't exist, someone wastes time looking for a ghost truck. Worse, if it
-        says "V-145 must not dispatch" when V-145 is actually fine, you lose a truck from
-        your fleet for no reason. We weight this 25% of the total score.
-      </p>
-
-      <div class="example good">
-        <strong>100% score:</strong> All mentioned vehicles, drivers, WOs, and DTCs exist in the data.
-        No false blockers identified.
-      </div>
-      <div class="example bad">
-        <strong>Low score:</strong> AI mentions "V-270" (doesn't exist) or "D-53" (out of range)
-        or says V-145 is a blocker (it isn't).
-      </div>
-    </div>
-  </div>
-
-  <!-- COMPLETENESS -->
-  <div class="metric-card">
-    <div class="metric-header">
-      <div class="metric-icon" style="background:#d97706">C</div>
-      <div>
-        <h3>Completeness</h3>
-        <div style="font-size:13px;color:#6b7280">Did the AI mention everything important?</div>
-      </div>
-      <span class="weight">Weight: 20%</span>
-    </div>
-    <div class="metric-body">
-      <h4>What it checks</h4>
-      <p>
         The AI should mention every dispatch blocker, every post-repair fault, and key data
-        quality facts (like duplicates removed and vendor severity discrepancies). We count
-        how many of these critical items appear in the briefing.
+        quality facts (duplicates removed, vendor severity discrepancies). We count how many
+        of these critical items from the scoring engine's output appear in the briefing.
       </p>
 
       <h4>Why it matters</h4>
       <p>
         A briefing that mentions V-137 but forgets V-108 could lead you to dispatch a truck
-        with two critical engine faults. The whole point of the briefing is to flag everything
-        that needs attention — missing an item defeats the purpose.
+        with two critical engine faults. The whole point of the briefing is to surface everything
+        that needs attention — a gap in coverage is a gap in your decision-making.
       </p>
 
       <div class="example good">
-        <strong>100% score:</strong> All 4 blockers mentioned, both post-repair faults called out,
+        <strong>High score:</strong> All 4 blockers mentioned, both post-repair faults called out,
         duplicate count noted, vendor overcount flagged.
       </div>
       <div class="example bad">
-        <strong>67% score:</strong> Mentions 3 of 4 blockers and skips V-108.
-        The ops manager might dispatch V-108 without knowing about the overheating.
+        <strong>Low score:</strong> Mentions 2 of 4 blockers and skips the Hamilton backfill vehicles entirely.
       </div>
     </div>
   </div>
 
-  <!-- NUMERICAL ACCURACY -->
+  <!-- CORRECTNESS -->
   <div class="metric-card">
     <div class="metric-header">
       <div class="metric-icon" style="background:#1d4ed8">N</div>
       <div>
-        <h3>Numerical Accuracy</h3>
-        <div style="font-size:13px;color:#6b7280">Are the numbers right?</div>
+        <h3>Correctness</h3>
+        <div style="font-size:13px;color:#6b7280">Are the numbers and facts right?</div>
+      </div>
+      <span class="weight">Weight: 25%</span>
+    </div>
+    <div class="metric-body">
+      <h4>What it checks</h4>
+      <p>
+        When the AI says "2,380 raw alerts" or "134 duplicates removed" or "42 HIGH-priority,"
+        we compare those numbers to the actual counts from the scoring engine. We also catch
+        false claims like "no duplicates found" when there were 134, or "30% duplicates" when
+        the real rate is about 6%.
+      </p>
+
+      <h4>Why it matters</h4>
+      <p>
+        Numbers build trust. If the AI says "30% duplicates" when the actual rate is 6%, it
+        creates a false impression that the data quality is terrible — which could undermine
+        confidence in the whole system. Getting the numbers right is table stakes for credibility.
+      </p>
+
+      <div class="example good">
+        <strong>High score:</strong> "134 duplicates removed from 2,380 alerts, 42 ranked HIGH" — matches exactly.
+      </div>
+      <div class="example bad">
+        <strong>Low score:</strong> "30% duplicates" (actual ~6%), or "5,000 raw alerts" (actual 2,380).
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIONABILITY -->
+  <div class="metric-card">
+    <div class="metric-header">
+      <div class="metric-icon" style="background:#7c3aed">A</div>
+      <div>
+        <h3>Actionability</h3>
+        <div style="font-size:13px;color:#6b7280">Does it help you make tonight's decisions?</div>
       </div>
       <span class="weight">Weight: 15%</span>
     </div>
     <div class="metric-body">
       <h4>What it checks</h4>
       <p>
-        When the AI says "2,380 raw alerts" or "134 duplicates removed" or "42 HIGH-priority,"
-        we compare those numbers to the actual counts from the scoring engine. We allow a 15%
-        tolerance (rounding and paraphrasing can shift numbers slightly), but anything beyond
-        that is flagged.
+        Three things: (1) dispatch blockers should appear <strong>before</strong> lower-priority items,
+        because you need to know what can't go out before planning what can;
+        (2) post-repair faults should be called out, because those are the most surprising
+        and dangerous findings; (3) the briefing should include <strong>next-step language</strong>
+        ("inspect," "do not dispatch," "open a work order") — not just describe the situation.
       </p>
 
       <h4>Why it matters</h4>
       <p>
-        If the AI says "30% duplicates" when the actual rate is 6%, it creates a false
-        impression that the data quality is much worse than it is. Numbers build trust —
-        wrong numbers destroy it.
+        A briefing can be perfectly accurate but still useless if it buries the "V-137 can't dispatch"
+        note at the bottom and leads with idling statistics. The order and framing of information
+        shapes decisions. This metric checks whether the AI organised its output to actually help
+        you act, not just to report.
       </p>
 
       <div class="example good">
-        <strong>100% score:</strong> "134 duplicates removed from 2,380 alerts" — matches exactly.
+        <strong>High score:</strong> Leads with blockers, calls out post-repair faults, tells you
+        to "re-inspect V-137 before dispatch" and "open a work order for V-108."
       </div>
       <div class="example bad">
-        <strong>Low score:</strong> "30% duplicates" when actual is ~6%, or "5,000 raw alerts"
-        when actual is 2,380.
-      </div>
-    </div>
-  </div>
-
-  <!-- RELEVANCE -->
-  <div class="metric-card">
-    <div class="metric-header">
-      <div class="metric-icon" style="background:#7c3aed">R</div>
-      <div>
-        <h3>Relevance</h3>
-        <div style="font-size:13px;color:#6b7280">Does the AI focus on what matters most?</div>
-      </div>
-      <span class="weight">Weight: 10%</span>
-    </div>
-    <div class="metric-body">
-      <h4>What it checks</h4>
-      <p>
-        Dispatch blockers should appear before lower-priority action items. Post-repair faults
-        (the most surprising and dangerous findings) should be emphasized. If the AI discusses
-        driver behaviour, it should include the firmware context that explains why some drivers'
-        numbers look worse than they are.
-      </p>
-
-      <h4>Why it matters</h4>
-      <p>
-        If the briefing leads with an idling alert and buries the "V-137 can't dispatch" note
-        at the bottom, the ops manager might skim the top and miss the critical action. The
-        order of information shapes decisions.
-      </p>
-
-      <div class="example good">
-        <strong>High score:</strong> Leads with blockers, then post-repair faults, then action items.
-      </div>
-      <div class="example bad">
-        <strong>Low score:</strong> Leads with "327 idling alerts" before mentioning any blocker.
+        <strong>Low score:</strong> Leads with "327 idling alerts" and only mentions blockers in passing
+        at the end. No next steps suggested.
       </div>
     </div>
   </div>
@@ -273,7 +272,7 @@
     <div class="metric-body">
       <table class="grade-table">
         <thead>
-          <tr><th>Grade</th><th>Score</th><th>What it means</th></tr>
+          <tr><th>Grade</th><th>Score</th><th>What it means for you</th></tr>
         </thead>
         <tbody>
           <tr><td style="font-weight:700;color:#16a34a">A</td><td>90%+</td>
@@ -281,11 +280,11 @@
           <tr><td style="font-weight:700;color:#65a30d">B</td><td>80-89%</td>
               <td>Good overall, but double-check any items the scorecard flagged.</td></tr>
           <tr><td style="font-weight:700;color:#d97706">C</td><td>65-79%</td>
-              <td>Some gaps or inaccuracies. Use the tables below the briefing as your primary source.</td></tr>
+              <td>Gaps or inaccuracies. Use the tables below the briefing as your primary source.</td></tr>
           <tr><td style="font-weight:700;color:#ea580c">D</td><td>50-64%</td>
               <td>Significant problems. Rely on the tables, not the briefing text.</td></tr>
           <tr><td style="font-weight:700;color:#dc2626">F</td><td>Below 50%</td>
-              <td>Briefing is unreliable. It was likely replaced with the template fallback.</td></tr>
+              <td>Briefing is unreliable. Was likely replaced with the template fallback.</td></tr>
         </tbody>
       </table>
     </div>
