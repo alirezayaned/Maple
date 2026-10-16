@@ -454,4 +454,10 @@ def format_eval_html(report):
         <tbody>{rows}</tbody>
       </table>
       {issue_html}
+      <div style="margin-top:14px;text-align:right">
+        <a href="eval_explained.html" target="_blank"
+           style="display:inline-block;background:#1d4ed8;color:#fff;padding:8px 18px;
+                  border-radius:6px;font-size:13px;font-weight:600;text-decoration:none">
+          What do these metrics mean?</a>
+      </div>
     </div>"""
