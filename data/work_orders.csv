@@ -1,0 +1,10 @@
+wo_id,vehicle_id,opened_local,closed_local,status,work_done,technician_note
+WO-5512,V-108,2026-09-08 15:20,2026-09-09 11:05,Closed,Replaced intake manifold gasket,P0171 lean condition resolved. Test drive OK.
+WO-5519,V-114,2026-09-12 16:10,2026-09-13 09:40,Closed,Coolant top-up and pressure test,Coolant was low. No leaks found. P0217 cleared.
+WO-5527,V-101,2026-09-15 15:30,2026-09-16 10:15,Closed,Replaced spark plugs and coil pack 3,P0300 misfire resolved.
+WO-5531,V-123,2026-09-16 08:00,2026-09-19 09:30,Closed,Reseated telematics harness,Loose OBD connector. Secured with tie wrap.
+WO-5534,V-149,2026-09-18 11:20,2026-09-19 14:00,Closed,Replaced ignition coil 4,P0300 misfire resolved.
+WO-5536,V-102,2026-09-18 23:00,,Open,Telematics unit removed for battery replacement,Truck parked in yard until new unit arrives. Not dispatched.
+WO-5540,V-137,2026-09-20 16:00,2026-09-21 07:40,Closed,Replaced coolant temperature sensor,P0217 readings traced to a faulty sensor. Codes cleared. OK to dispatch.
+WO-5541,V-151,2026-09-02 09:00,,Scheduled,Service A (oil and filters),Booked for 2026-10-05 (next open bay).
+WO-5543,V-158,2026-09-21 17:30,,Open,Misfire inspection,Booked first thing 2026-09-22.

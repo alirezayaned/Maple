@@ -1,0 +1,61 @@
+vehicle_id,depot,vehicle_class,device_firmware,assigned_driver,km_driven_14d
+V-101,Airport Hub,Cargo van,4.1.8,D-01,1673
+V-102,Airport Hub,Class 8 tractor,4.3.0,D-02,2851
+V-103,North Yard,Class 5 service truck,4.2.1,D-03,2724
+V-104,Hamilton Depot,Class 8 tractor,4.1.8,D-04,2454
+V-105,Airport Hub,Class 8 tractor,4.3.0,D-05,2709
+V-106,North Yard,Class 8 tractor,4.1.8,D-06,2704
+V-107,Hamilton Depot,Cargo van,4.3.0,D-07,2250
+V-108,Hamilton Depot,Class 5 service truck,4.1.8,D-08,2471
+V-109,Airport Hub,Cargo van,4.2.1,D-09,2453
+V-110,Hamilton Depot,Class 6 box truck,4.3.0,D-10,2289
+V-111,North Yard,Cargo van,4.1.8,D-11,1706
+V-112,Airport Hub,Class 6 box truck,4.2.1,D-12,2250
+V-113,Hamilton Depot,Class 6 box truck,4.3.0,D-13,2818
+V-114,North Yard,Cargo van,4.1.8,D-14,2571
+V-115,Airport Hub,Class 6 box truck,4.3.0,D-15,3078
+V-116,Hamilton Depot,Class 6 box truck,4.1.8,D-16,2487
+V-117,North Yard,Class 8 tractor,4.3.0,D-42,1852
+V-118,Airport Hub,Class 6 box truck,4.1.8,D-18,2495
+V-119,Hamilton Depot,Class 5 service truck,4.3.0,D-19,1881
+V-120,North Yard,Class 8 tractor,4.1.8,D-20,1428
+V-121,Airport Hub,Class 8 tractor,4.2.1,D-21,2320
+V-122,Hamilton Depot,Class 6 box truck,4.3.0,D-22,2868
+V-123,North Yard,Cargo van,4.1.8,D-23,2962
+V-124,Hamilton Depot,Class 6 box truck,4.3.0,D-24,2962
+V-125,Airport Hub,Cargo van,4.2.1,D-25,2792
+V-126,Hamilton Depot,Class 8 tractor,4.1.8,D-26,2895
+V-127,North Yard,Class 6 box truck,4.3.0,D-27,2987
+V-128,Hamilton Depot,Class 6 box truck,4.1.8,D-28,2597
+V-129,Airport Hub,Cargo van,4.2.1,D-29,2808
+V-130,North Yard,Class 5 service truck,4.3.0,D-30,2693
+V-131,Hamilton Depot,Cargo van,4.1.8,D-31,1495
+V-132,Airport Hub,Class 5 service truck,4.3.0,D-32,2746
+V-133,North Yard,Class 8 tractor,4.1.8,D-33,2000
+V-134,Airport Hub,Class 8 tractor,4.3.0,D-34,2874
+V-135,Hamilton Depot,Class 5 service truck,4.1.8,D-35,3138
+V-136,North Yard,Class 5 service truck,4.3.0,D-36,2602
+V-137,North Yard,Cargo van,4.2.1,D-37,2480
+V-138,North Yard,Class 8 tractor,4.1.8,D-38,2133
+V-139,Hamilton Depot,Class 6 box truck,4.3.0,D-39,2513
+V-140,Airport Hub,Class 5 service truck,4.2.1,D-40,2569
+V-141,North Yard,Class 5 service truck,4.1.8,D-41,2760
+V-142,Airport Hub,Class 6 box truck,4.2.1,D-17,3650
+V-143,North Yard,Class 5 service truck,4.3.0,D-43,2677
+V-144,Airport Hub,Class 5 service truck,4.1.8,D-44,2086
+V-145,Hamilton Depot,Class 6 box truck,4.3.0,D-45,2542
+V-146,North Yard,Class 8 tractor,4.2.1,D-46,2553
+V-147,Airport Hub,Cargo van,4.1.8,D-47,2295
+V-148,Hamilton Depot,Class 5 service truck,4.3.0,D-48,1616
+V-149,North Yard,Class 8 tractor,4.1.8,D-49,2272
+V-150,Airport Hub,Cargo van,4.3.0,D-50,2653
+V-151,Hamilton Depot,Class 5 service truck,4.1.8,D-51,2211
+V-152,North Yard,Class 5 service truck,4.3.0,D-52,2001
+V-153,Airport Hub,Class 6 box truck,4.2.1,D-53,2211
+V-154,Hamilton Depot,Class 8 tractor,4.1.8,D-54,2395
+V-155,North Yard,Class 8 tractor,4.3.0,D-55,2626
+V-156,Airport Hub,Class 6 box truck,4.1.8,D-56,1874
+V-157,Hamilton Depot,Class 6 box truck,4.3.0,D-57,2673
+V-158,North Yard,Class 5 service truck,4.2.1,D-58,2872
+V-159,Airport Hub,Class 8 tractor,4.1.8,D-59,1427
+V-160,Hamilton Depot,Cargo van,4.3.0,D-60,2362

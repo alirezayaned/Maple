@@ -1,0 +1,2872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maple Freight – Dispatch Decision Board</title>
+<style>
+  :root {
+    --bg: #f9fafb; --card: #ffffff; --border: #e5e7eb;
+    --text: #111827; --muted: #6b7280;
+    --red: #dc2626; --amber: #d97706; --green: #16a34a; --blue: #1d4ed8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+         background: var(--bg); color: var(--text); font-size: 14px; }
+  .header { background: #1e293b; color: #fff; padding: 20px 32px; }
+  .header h1 { font-size: 22px; font-weight: 700; }
+  .header .sub { color: #94a3b8; font-size: 13px; margin-top: 4px; }
+  .content { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+  .section { background: var(--card); border: 1px solid var(--border);
+              border-radius: 8px; margin-bottom: 24px; overflow: hidden; }
+  .section-header { padding: 14px 20px; border-bottom: 1px solid var(--border);
+                     display: flex; align-items: center; gap: 10px; }
+  .section-header h2 { font-size: 15px; font-weight: 700; }
+  .section-header .count { background: #f3f4f6; color: #374151;
+                            padding: 2px 8px; border-radius: 99px; font-size: 12px; }
+  .blocker-header { background: #fef2f2; border-bottom-color: #fecaca; }
+  .blocker-header h2 { color: var(--red); }
+  .ai-header { background: #eff6ff; border-bottom-color: #bfdbfe; }
+  .ai-header h2 { color: var(--blue); }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #f9fafb; padding: 9px 12px; text-align: left;
+       font-size: 12px; font-weight: 600; color: var(--muted);
+       text-transform: uppercase; letter-spacing: .04em;
+       border-bottom: 1px solid var(--border); }
+  td { padding: 9px 12px; border-bottom: 1px solid #f3f4f6; vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f8fafc; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 1px; background: var(--border); }
+  .stat-box { background: var(--card); padding: 16px 20px; }
+  .stat-box .val { font-size: 28px; font-weight: 800; line-height: 1; }
+  .stat-box .lbl { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .note-box { background: #eff6ff; border-left: 4px solid #3b82f6;
+               padding: 12px 16px; margin: 12px 20px; border-radius: 0 4px 4px 0;
+               font-size: 13px; color: #1e40af; line-height: 1.5; }
+  .warn-box { background: #fffbeb; border-left: 4px solid #f59e0b;
+              padding: 12px 16px; margin: 12px 20px; border-radius: 0 4px 4px 0;
+              font-size: 13px; color: #92400e; line-height: 1.5; }
+  .briefing-box { padding: 16px 20px; font-size: 14px; line-height: 1.7; color: #1e293b; }
+  .tab-nav { display: flex; border-bottom: 1px solid var(--border);
+              padding: 0 20px; background: #f9fafb; flex-wrap: wrap; }
+  .tab-btn { padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+              border: none; background: none; color: var(--muted); border-bottom: 3px solid transparent; }
+  .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+  .scroll-x { overflow-x: auto; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Maple Freight – Dispatch Decision Board</h1>
+  <div class="sub">Monday, September 21, 2026 · 6:00 PM Eastern · 60 vehicles · North Yard · Airport Hub · Hamilton Depot</div>
+</div>
+
+<div class="content">
+
+  <!-- AI Briefing -->
+  <div class="section">
+    <div class="section-header ai-header">
+      <h2>AI Morning Briefing</h2>
+      <span class="count" style="background:#dbeafe;color:#1e40af">generated from 2199 alerts</span>
+    </div>
+    <div class="briefing-box">**Dispatch Briefing**<br>
+<br>
+Status Line:<br>
+- Monday September 21st at 6:00 PM Eastern Time<br>
+<br>
+Urgent Items:<br>
+<br>
+### V-158 (North Yard)<br>
+#### Why & Next Step:<br>
+The North Yard depot has a misfire inspection scheduled for tomorrow morning. This is the first thing that needs to be addressed as it could lead to further issues.<br>
+<br>
+**Next Steps:** <br>
+Ensure all necessary equipment and personnel are ready by 20:30 AM, then proceed with scheduling work orders immediately after completion of this task.<br>
+- **Note on Data Quality:** The telematics data for V-158 is clean. No duplicates or noise were detected during the recent analysis.<br>
+<br>
+### V-147 (Airport Hub)<br>
+#### Why & Next Step:<br>
+The AirportHub depot has a critical: Oil pressure alert at 20:36 ET, which requires immediate attention due to potential engine damage risks.<br>
+**Next Steps:** <br>
+Stop all vehicles in this area and immediately replace the coolant temperature sensor. This should resolve the issue without further complications.<br>
+<br>
+### V-145 (North Yard)<br>
+#### Why & Next Step:<br>
+The North Yard depot has a critical: Engine overheating alert at 20:38 ET, which necessitates immediate action to prevent engine damage.<br>
+**Next Steps:** <br>
+Stop all vehicles in this area and replace the intake manifold gasket. This should resolve the issue without further complications.<br>
+<br>
+### Data Quality Note<br>
+During our recent telematics export from September 14-September 20th (a total of four days), we encountered no issues with duplicate alerts, noise filtering or other data quality concerns.<br>
+The cleaned dataset contains a significant reduction in actionable alerts compared to previous analyses. This indicates that the system is more reliable and accurate over time.<br>
+<br>
+Thank you for your attention!</div>
+  </div>
+
+  <!-- Stats bar -->
+  <div class="section">
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="val">2380</div>
+        <div class="lbl">Raw alerts (14 days)</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" style="color:#9ca3af">134</div>
+        <div class="lbl">Duplicates removed</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" style="color:var(--red)">42</div>
+        <div class="lbl">Re-ranked HIGH</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" style="color:var(--amber)">685</div>
+        <div class="lbl">Re-ranked MEDIUM</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" style="color:var(--green)">1472</div>
+        <div class="lbl">Re-ranked LOW</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" style="color:#9ca3af">23</div>
+        <div class="lbl">OTA noise filtered</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" style="color:var(--green)">157</div>
+        <div class="lbl">Already resolved</div>
+      </div>
+      <div class="stat-box">
+        <div class="val" style="color:var(--red)">4</div>
+        <div class="lbl">Dispatch blockers</div>
+      </div>
+    </div>
+    <div class="note-box">
+      <strong>Ranking method:</strong> Scores use DTC urgency (not vendor severity), alert recency (1.5x for last 48h),
+      and cross-reference with work orders. Vendor marked 313 alerts HIGH — our re-ranking
+      uses the DTC reference to correct P0420 catalyst alerts (low-urgency emissions) that the vendor marks HIGH.
+      134 duplicate alerts were removed (23 OTA-window noise filtered).
+      Firmware 4.2.1 vehicles are flagged where harsh-event counts are inflated by improved sensor sensitivity.
+    </div>
+  </div>
+
+  <!-- DISPATCH BLOCKERS -->
+  <div class="section">
+    <div class="section-header blocker-header">
+      <h2>Dispatch Blockers — Do NOT send these vehicles out tomorrow</h2>
+      <span class="count" style="background:#fecaca;color:#991b1b">4 vehicles</span>
+    </div>
+    <div class="scroll-x">
+    <table>
+      <thead><tr>
+        <th>Vehicle</th><th>Depot</th><th>Reason</th><th>Detail</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>V-102</strong></td>
+          <td>Airport Hub</td>
+          <td style="color:#dc2626;font-weight:600">Telematics unit removed for battery replacement</td>
+          <td style="color:#666;font-size:13px">Truck parked in yard until new unit arrives. Not dispatched.</td>
+        </tr>
+        <tr>
+          <td><strong>V-158</strong></td>
+          <td>North Yard</td>
+          <td style="color:#dc2626;font-weight:600">Misfire inspection</td>
+          <td style="color:#666;font-size:13px">Booked first thing 2026-09-22.</td>
+        </tr>
+        <tr>
+          <td><strong>V-137</strong></td>
+          <td>North Yard</td>
+          <td style="color:#dc2626;font-weight:600">Critical: Oil pressure critical</td>
+          <td style="color:#666;font-size:13px">Stop vehicle immediately</td>
+        </tr>
+        <tr>
+          <td><strong>V-108</strong></td>
+          <td>Hamilton Depot</td>
+          <td style="color:#dc2626;font-weight:600">Critical: Engine overheating</td>
+          <td style="color:#666;font-size:13px">Stop vehicle, risk of engine damage</td>
+        </tr></tbody>
+    </table>
+    </div>
+    <div class="warn-box" style="margin-bottom:8px"><strong>V-137:</strong> Oil pressure critical (P0524) at Sep 21 14:32 ET — appeared AFTER work order WO-5540 closed (Replaced coolant temperature sensor). This is a <strong>different, unresolved fault</strong>. Re-inspect before dispatch.</div><div class="warn-box" style="margin-bottom:8px"><strong>V-108:</strong> Engine overheating (P0217) at Sep 21 12:05 ET — appeared AFTER work order WO-5512 closed (Replaced intake manifold gasket). This is a <strong>different, unresolved fault</strong>. Re-inspect before dispatch.</div><div class="warn-box" style="margin-bottom:8px"><strong>V-108:</strong> Oil pressure critical (P0524) at Sep 21 15:41 ET — appeared AFTER work order WO-5512 closed (Replaced intake manifold gasket). This is a <strong>different, unresolved fault</strong>. Re-inspect before dispatch.</div>
+  </div>
+
+  <!-- TABS -->
+  <div class="section">
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="switchTab('top10',this)">Top 10 Action Items</button>
+      <button class="tab-btn" onclick="switchTab('drivers',this)">Driver Leaderboard</button>
+      <button class="tab-btn" onclick="switchTab('depots',this)">Depot Summary</button>
+      <button class="tab-btn" onclick="switchTab('allalerts',this)">All Alerts (re-ranked)</button>
+    </div>
+
+    <div id="top10" class="tab-pane active">
+      <div class="note-box">
+        The 10 vehicles needing attention today, excluding dispatch blockers and open work orders.
+      </div>
+      <div class="scroll-x">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Vehicle</th><th>Driver</th><th>Depot</th>
+          <th>My Rank</th><th>Top Issue</th><th>Detail</th><th>Alerts</th>
+        </tr></thead>
+        <tbody>
+        <tr>
+          <td style="color:#6b7280;font-size:13px">1</td>
+          <td><strong>V-151</strong></td>
+          <td>D-51</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td>Maintenance due <span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:1px 6px;border-radius:99px;font-size:11px">1 eng HIGH</span></td>
+          <td style="font-size:13px;color:#555">2350 km/h</td>
+          <td style="text-align:right;font-weight:600">20</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280;font-size:13px">2</td>
+          <td><strong>V-121</strong> <span title="4.2.1 firmware detects more harsh events" style="color:#9ca3af;font-size:11px">fw4.2.1</span></td>
+          <td>D-21</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:13px;color:#555">0.61 g</td>
+          <td style="text-align:right;font-weight:600">57</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280;font-size:13px">3</td>
+          <td><strong>V-155</strong></td>
+          <td>D-55</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:13px;color:#555">0.7 g</td>
+          <td style="text-align:right;font-weight:600">25</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280;font-size:13px">4</td>
+          <td><strong>V-131</strong></td>
+          <td>D-31</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td>Harsh braking <span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:1px 6px;border-radius:99px;font-size:11px">1 eng HIGH</span></td>
+          <td style="font-size:13px;color:#555">0.73 g</td>
+          <td style="text-align:right;font-weight:600">20</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280;font-size:13px">5</td>
+          <td><strong>V-133</strong></td>
+          <td>D-33</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:13px;color:#555">0.74 g</td>
+          <td style="text-align:right;font-weight:600">29</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280;font-size:13px">6</td>
+          <td><strong>V-109</strong> <span title="4.2.1 firmware detects more harsh events" style="color:#9ca3af;font-size:11px">fw4.2.1</span></td>
+          <td>D-09</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:13px;color:#555">0.62 g</td>
+          <td style="text-align:right;font-weight:600">57</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280;font-size:13px">7</td>
+          <td><strong>V-106</strong></td>
+          <td>D-06</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:13px;color:#555">0.65 g</td>
+          <td style="text-align:right;font-weight:600">41</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280;font-size:13px">8</td>
+          <td><strong>V-130</strong></td>
+          <td>D-30</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:13px;color:#555">0.74 g</td>
+          <td style="text-align:right;font-weight:600">36</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280;font-size:13px">9</td>
+          <td><strong>V-132</strong></td>
+          <td>D-32</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:13px;color:#555">0.72 g</td>
+          <td style="text-align:right;font-weight:600">30</td>
+        </tr>
+        <tr>
+          <td style="color:#6b7280;font-size:13px">10</td>
+          <td><strong>V-134</strong></td>
+          <td>D-34</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:13px;color:#555">0.62 g</td>
+          <td style="text-align:right;font-weight:600">33</td>
+        </tr></tbody>
+      </table>
+      </div>
+    </div>
+
+    <div id="drivers" class="tab-pane">
+      <div class="warn-box">
+        <strong>Read before acting:</strong> Firmware 4.2.1 detects ~40% more harsh events than 4.1.8
+        (vendor note, August 2026). Raw alert counts cannot be compared across firmware versions.
+        The "Adj. Score" and "Rate/1000km" columns control for this. D-17 still ranks high after
+        adjustment — specific HIGH events warrant review — but the gap is smaller than raw counts suggest.
+      </div>
+      <div class="scroll-x">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Driver</th><th>Vehicle</th><th>Depot</th>
+          <th style="text-align:right">Alerts</th>
+          <th style="text-align:right">KM (14d)</th>
+          <th style="text-align:right">Rate/1000km</th>
+          <th style="text-align:right">HIGH</th>
+          <th style="text-align:right">MED</th>
+          <th style="text-align:right">LOW</th>
+          <th style="text-align:right">Adj. Score</th>
+        </tr></thead>
+        <tbody>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">1</td>
+          <td><strong>D-17</strong> <span style="color:#dc2626;font-size:11px">flagged by safety mgr</span></td>
+          <td>V-142 <span title="Firmware 4.2.1 inflates harsh-event counts by ~40% vs 4.1.8" style="background:#fef9c3;color:#854d0e;border:1px solid #ca8a04;padding:1px 6px;border-radius:99px;font-size:11px;font-weight:600">4.2.1</span></td>
+          <td>Airport Hub</td>
+          <td style="text-align:right;font-weight:700">99</td>
+          <td style="text-align:right">3650</td>
+          <td style="text-align:right;color:#6b7280">27.1</td>
+          <td style="text-align:right;color:#dc2626">1</td>
+          <td style="text-align:right;color:#d97706">33</td>
+          <td style="text-align:right;color:#16a34a">65</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">1309.8</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">2</td>
+          <td><strong>D-37</strong></td>
+          <td>V-137 <span title="Firmware 4.2.1 inflates harsh-event counts by ~40% vs 4.1.8" style="background:#fef9c3;color:#854d0e;border:1px solid #ca8a04;padding:1px 6px;border-radius:99px;font-size:11px;font-weight:600">4.2.1</span></td>
+          <td>North Yard</td>
+          <td style="text-align:right;font-weight:700">74</td>
+          <td style="text-align:right">2480</td>
+          <td style="text-align:right;color:#6b7280">29.8</td>
+          <td style="text-align:right;color:#dc2626">6</td>
+          <td style="text-align:right;color:#d97706">25</td>
+          <td style="text-align:right;color:#16a34a">43</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">1678.1</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">3</td>
+          <td><strong>D-58</strong></td>
+          <td>V-158 <span title="Firmware 4.2.1 inflates harsh-event counts by ~40% vs 4.1.8" style="background:#fef9c3;color:#854d0e;border:1px solid #ca8a04;padding:1px 6px;border-radius:99px;font-size:11px;font-weight:600">4.2.1</span></td>
+          <td>North Yard</td>
+          <td style="text-align:right;font-weight:700">74</td>
+          <td style="text-align:right">2872</td>
+          <td style="text-align:right;color:#6b7280">25.8</td>
+          <td style="text-align:right;color:#dc2626">1</td>
+          <td style="text-align:right;color:#d97706">2</td>
+          <td style="text-align:right;color:#16a34a">71</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">519.4</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">4</td>
+          <td><strong>D-29</strong></td>
+          <td>V-129 <span title="Firmware 4.2.1 inflates harsh-event counts by ~40% vs 4.1.8" style="background:#fef9c3;color:#854d0e;border:1px solid #ca8a04;padding:1px 6px;border-radius:99px;font-size:11px;font-weight:600">4.2.1</span></td>
+          <td>Airport Hub</td>
+          <td style="text-align:right;font-weight:700">67</td>
+          <td style="text-align:right">2808</td>
+          <td style="text-align:right;color:#6b7280">23.9</td>
+          <td style="text-align:right;color:#dc2626">0</td>
+          <td style="text-align:right;color:#d97706">24</td>
+          <td style="text-align:right;color:#16a34a">43</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">961.5</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">5</td>
+          <td><strong>D-25</strong></td>
+          <td>V-125 <span title="Firmware 4.2.1 inflates harsh-event counts by ~40% vs 4.1.8" style="background:#fef9c3;color:#854d0e;border:1px solid #ca8a04;padding:1px 6px;border-radius:99px;font-size:11px;font-weight:600">4.2.1</span></td>
+          <td>Airport Hub</td>
+          <td style="text-align:right;font-weight:700">66</td>
+          <td style="text-align:right">2792</td>
+          <td style="text-align:right;color:#6b7280">23.6</td>
+          <td style="text-align:right;color:#dc2626">0</td>
+          <td style="text-align:right;color:#d97706">24</td>
+          <td style="text-align:right;color:#16a34a">42</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">946.6</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">6</td>
+          <td><strong>D-40</strong></td>
+          <td>V-140 <span title="Firmware 4.2.1 inflates harsh-event counts by ~40% vs 4.1.8" style="background:#fef9c3;color:#854d0e;border:1px solid #ca8a04;padding:1px 6px;border-radius:99px;font-size:11px;font-weight:600">4.2.1</span></td>
+          <td>Airport Hub</td>
+          <td style="text-align:right;font-weight:700">66</td>
+          <td style="text-align:right">2569</td>
+          <td style="text-align:right;color:#6b7280">25.7</td>
+          <td style="text-align:right;color:#dc2626">0</td>
+          <td style="text-align:right;color:#d97706">23</td>
+          <td style="text-align:right;color:#16a34a">43</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">944.1</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">7</td>
+          <td><strong>D-03</strong></td>
+          <td>V-103 <span title="Firmware 4.2.1 inflates harsh-event counts by ~40% vs 4.1.8" style="background:#fef9c3;color:#854d0e;border:1px solid #ca8a04;padding:1px 6px;border-radius:99px;font-size:11px;font-weight:600">4.2.1</span></td>
+          <td>North Yard</td>
+          <td style="text-align:right;font-weight:700">63</td>
+          <td style="text-align:right">2724</td>
+          <td style="text-align:right;color:#6b7280">23.1</td>
+          <td style="text-align:right;color:#dc2626">0</td>
+          <td style="text-align:right;color:#d97706">24</td>
+          <td style="text-align:right;color:#16a34a">39</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">951.6</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">8</td>
+          <td><strong>D-46</strong></td>
+          <td>V-146 <span title="Firmware 4.2.1 inflates harsh-event counts by ~40% vs 4.1.8" style="background:#fef9c3;color:#854d0e;border:1px solid #ca8a04;padding:1px 6px;border-radius:99px;font-size:11px;font-weight:600">4.2.1</span></td>
+          <td>North Yard</td>
+          <td style="text-align:right;font-weight:700">61</td>
+          <td style="text-align:right">2553</td>
+          <td style="text-align:right;color:#6b7280">23.9</td>
+          <td style="text-align:right;color:#dc2626">0</td>
+          <td style="text-align:right;color:#d97706">24</td>
+          <td style="text-align:right;color:#16a34a">37</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">876.0</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">9</td>
+          <td><strong>D-53</strong></td>
+          <td>V-153 <span title="Firmware 4.2.1 inflates harsh-event counts by ~40% vs 4.1.8" style="background:#fef9c3;color:#854d0e;border:1px solid #ca8a04;padding:1px 6px;border-radius:99px;font-size:11px;font-weight:600">4.2.1</span></td>
+          <td>Airport Hub</td>
+          <td style="text-align:right;font-weight:700">59</td>
+          <td style="text-align:right">2211</td>
+          <td style="text-align:right;color:#6b7280">26.7</td>
+          <td style="text-align:right;color:#dc2626">0</td>
+          <td style="text-align:right;color:#d97706">20</td>
+          <td style="text-align:right;color:#16a34a">39</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">852.5</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">10</td>
+          <td><strong>D-21</strong></td>
+          <td>V-121 <span title="Firmware 4.2.1 inflates harsh-event counts by ~40% vs 4.1.8" style="background:#fef9c3;color:#854d0e;border:1px solid #ca8a04;padding:1px 6px;border-radius:99px;font-size:11px;font-weight:600">4.2.1</span></td>
+          <td>Airport Hub</td>
+          <td style="text-align:right;font-weight:700">57</td>
+          <td style="text-align:right">2320</td>
+          <td style="text-align:right;color:#6b7280">24.6</td>
+          <td style="text-align:right;color:#dc2626">1</td>
+          <td style="text-align:right;color:#d97706">23</td>
+          <td style="text-align:right;color:#16a34a">33</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">1000.9</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">11</td>
+          <td><strong>D-09</strong></td>
+          <td>V-109 <span title="Firmware 4.2.1 inflates harsh-event counts by ~40% vs 4.1.8" style="background:#fef9c3;color:#854d0e;border:1px solid #ca8a04;padding:1px 6px;border-radius:99px;font-size:11px;font-weight:600">4.2.1</span></td>
+          <td>Airport Hub</td>
+          <td style="text-align:right;font-weight:700">57</td>
+          <td style="text-align:right">2453</td>
+          <td style="text-align:right;color:#6b7280">23.2</td>
+          <td style="text-align:right;color:#dc2626">1</td>
+          <td style="text-align:right;color:#d97706">26</td>
+          <td style="text-align:right;color:#16a34a">30</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">939.0</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">12</td>
+          <td><strong>D-12</strong></td>
+          <td>V-112 <span title="Firmware 4.2.1 inflates harsh-event counts by ~40% vs 4.1.8" style="background:#fef9c3;color:#854d0e;border:1px solid #ca8a04;padding:1px 6px;border-radius:99px;font-size:11px;font-weight:600">4.2.1</span></td>
+          <td>Airport Hub</td>
+          <td style="text-align:right;font-weight:700">48</td>
+          <td style="text-align:right">2250</td>
+          <td style="text-align:right;color:#6b7280">21.3</td>
+          <td style="text-align:right;color:#dc2626">0</td>
+          <td style="text-align:right;color:#d97706">17</td>
+          <td style="text-align:right;color:#16a34a">31</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">738.4</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">13</td>
+          <td><strong>D-06</strong></td>
+          <td>V-106</td>
+          <td>North Yard</td>
+          <td style="text-align:right;font-weight:700">41</td>
+          <td style="text-align:right">2704</td>
+          <td style="text-align:right;color:#6b7280">15.2</td>
+          <td style="text-align:right;color:#dc2626">1</td>
+          <td style="text-align:right;color:#d97706">10</td>
+          <td style="text-align:right;color:#16a34a">30</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">890.2</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">14</td>
+          <td><strong>D-15</strong></td>
+          <td>V-115</td>
+          <td>Airport Hub</td>
+          <td style="text-align:right;font-weight:700">41</td>
+          <td style="text-align:right">3078</td>
+          <td style="text-align:right;color:#6b7280">13.3</td>
+          <td style="text-align:right;color:#dc2626">0</td>
+          <td style="text-align:right;color:#d97706">12</td>
+          <td style="text-align:right;color:#16a34a">29</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">786.5</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">15</td>
+          <td><strong>D-57</strong></td>
+          <td>V-157</td>
+          <td>Hamilton Depot</td>
+          <td style="text-align:right;font-weight:700">40</td>
+          <td style="text-align:right">2673</td>
+          <td style="text-align:right;color:#6b7280">15.0</td>
+          <td style="text-align:right;color:#dc2626">0</td>
+          <td style="text-align:right;color:#d97706">13</td>
+          <td style="text-align:right;color:#16a34a">27</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">893.9</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">16</td>
+          <td><strong>D-35</strong></td>
+          <td>V-135</td>
+          <td>Hamilton Depot</td>
+          <td style="text-align:right;font-weight:700">40</td>
+          <td style="text-align:right">3138</td>
+          <td style="text-align:right;color:#6b7280">12.7</td>
+          <td style="text-align:right;color:#dc2626">1</td>
+          <td style="text-align:right;color:#d97706">18</td>
+          <td style="text-align:right;color:#16a34a">21</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">1169.0</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">17</td>
+          <td><strong>D-27</strong></td>
+          <td>V-127</td>
+          <td>North Yard</td>
+          <td style="text-align:right;font-weight:700">37</td>
+          <td style="text-align:right">2987</td>
+          <td style="text-align:right;color:#6b7280">12.4</td>
+          <td style="text-align:right;color:#dc2626">0</td>
+          <td style="text-align:right;color:#d97706">9</td>
+          <td style="text-align:right;color:#16a34a">28</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">689.4</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">18</td>
+          <td><strong>D-24</strong></td>
+          <td>V-124</td>
+          <td>Hamilton Depot</td>
+          <td style="text-align:right;font-weight:700">37</td>
+          <td style="text-align:right">2962</td>
+          <td style="text-align:right;color:#6b7280">12.5</td>
+          <td style="text-align:right;color:#dc2626">0</td>
+          <td style="text-align:right;color:#d97706">12</td>
+          <td style="text-align:right;color:#16a34a">25</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">927.4</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">19</td>
+          <td><strong>D-30</strong></td>
+          <td>V-130</td>
+          <td>North Yard</td>
+          <td style="text-align:right;font-weight:700">36</td>
+          <td style="text-align:right">2693</td>
+          <td style="text-align:right;color:#6b7280">13.4</td>
+          <td style="text-align:right;color:#dc2626">2</td>
+          <td style="text-align:right;color:#d97706">11</td>
+          <td style="text-align:right;color:#16a34a">23</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">917.3</td>
+        </tr>
+        <tr>
+          <td style="color:#9ca3af;font-size:13px">20</td>
+          <td><strong>D-07</strong></td>
+          <td>V-107</td>
+          <td>Hamilton Depot</td>
+          <td style="text-align:right;font-weight:700">36</td>
+          <td style="text-align:right">2250</td>
+          <td style="text-align:right;color:#6b7280">16.0</td>
+          <td style="text-align:right;color:#dc2626">0</td>
+          <td style="text-align:right;color:#d97706">8</td>
+          <td style="text-align:right;color:#16a34a">28</td>
+          <td style="text-align:right;font-size:13px;color:#1e40af;font-weight:600">755.0</td>
+        </tr></tbody>
+      </table>
+      </div>
+    </div>
+
+    <div id="depots" class="tab-pane">
+      <div class="scroll-x">
+      <table>
+        <thead><tr>
+          <th>Depot</th><th>Vehicles</th>
+          <th>HIGH</th><th>MEDIUM</th><th>LOW</th><th>Blocked</th>
+        </tr></thead>
+        <tbody>
+        <tr>
+          <td><strong>Airport Hub</strong></td>
+          <td>20</td>
+          <td style="color:#dc2626;font-weight:600">9</td>
+          <td style="color:#d97706">293</td>
+          <td style="color:#16a34a">570</td>
+          <td style="color:#dc2626">1 blocked</td>
+        </tr>
+        <tr>
+          <td><strong>Hamilton Depot</strong></td>
+          <td>20</td>
+          <td style="color:#dc2626;font-weight:600">11</td>
+          <td style="color:#d97706">190</td>
+          <td style="color:#16a34a">389</td>
+          <td style="color:#dc2626">1 blocked</td>
+        </tr>
+        <tr>
+          <td><strong>North Yard</strong></td>
+          <td>20</td>
+          <td style="color:#dc2626;font-weight:600">22</td>
+          <td style="color:#d97706">202</td>
+          <td style="color:#16a34a">513</td>
+          <td style="color:#dc2626">2 blocked</td>
+        </tr></tbody>
+      </table>
+      </div>
+    </div>
+
+    <div id="allalerts" class="tab-pane">
+      <div class="note-box">
+        Top 200 alerts by re-ranked score. My severity uses DTC urgency + recency; vendor severity shown for comparison.
+        "fixed" = work order closed after this alert. "in shop" = open work order. "fw" = 4.2.1 firmware inflation.
+      </div>
+      <div class="scroll-x">
+      <table>
+        <thead><tr>
+          <th>Alert ID</th><th>Vehicle</th><th>Driver</th><th>Depot</th>
+          <th>My rank</th><th>Vendor</th><th>Type / Detail</th><th>Time (ET)</th>
+          <th style="text-align:right">Score</th>
+        </tr></thead>
+        <tbody>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-784686</td>
+          <td>V-137</td>
+          <td>D-37</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Oil pressure critical)</span></td>
+          <td style="font-size:12px;color:#555">Sep 21 14:32 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">150.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-707191</td>
+          <td>V-108</td>
+          <td>D-08</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Oil pressure critical)</span></td>
+          <td style="font-size:12px;color:#555">Sep 21 15:41 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">150.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-856950</td>
+          <td>V-137</td>
+          <td>D-37</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Engine overheating)</span> <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 20 11:30 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">135.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-120811</td>
+          <td>V-108</td>
+          <td>D-08</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Engine overheating)</span></td>
+          <td style="font-size:12px;color:#555">Sep 21 12:05 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">135.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-927832</td>
+          <td>V-151</td>
+          <td>D-51</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#f0fdf4;color:#16a34a;border:1px solid #16a34a;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">LOW</span></span></td>
+          <td>Maintenance due</td>
+          <td style="font-size:12px;color:#555">Sep 21 06:00 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">120.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-458608</td>
+          <td>V-137</td>
+          <td>D-37</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Engine overheating)</span> <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 18 12:46 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">108.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-149353</td>
+          <td>V-137</td>
+          <td>D-37</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Engine overheating)</span> <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 19 14:27 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">108.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-668410</td>
+          <td>V-151</td>
+          <td>D-51</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Cylinder misfire)</span></td>
+          <td style="font-size:12px;color:#555">Sep 20 15:09 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">105.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-468820</td>
+          <td>V-158</td>
+          <td>D-58</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Cylinder misfire)</span> <span style="color:#f59e0b;font-size:11px">in shop</span></td>
+          <td style="font-size:12px;color:#555">Sep 21 17:09 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">105.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-548806</td>
+          <td>V-114</td>
+          <td>D-14</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Engine overheating)</span> <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 12 14:10 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">90.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-815916</td>
+          <td>V-137</td>
+          <td>D-37</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Engine overheating)</span> <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 17 14:57 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">90.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-465255</td>
+          <td>V-149</td>
+          <td>D-49</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Cylinder misfire)</span> <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 18 10:39 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">84.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-775140</td>
+          <td>V-137</td>
+          <td>D-37</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#16a34a;font-size:11px">fixed</span> <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 19 18:02 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-542903</td>
+          <td>V-134</td>
+          <td>D-34</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 19 18:35 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-882197</td>
+          <td>V-149</td>
+          <td>D-49</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 19 19:25 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-661925</td>
+          <td>V-133</td>
+          <td>D-33</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 19 19:35 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-114094</td>
+          <td>V-135</td>
+          <td>D-35</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 19 20:26 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-853049</td>
+          <td>V-130</td>
+          <td>D-30</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 19 21:56 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-562050</td>
+          <td>V-106</td>
+          <td>D-06</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 20 11:27 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-466856</td>
+          <td>V-152</td>
+          <td>D-52</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 20 12:25 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-321560</td>
+          <td>V-111</td>
+          <td>D-11</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 20 12:45 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-933042</td>
+          <td>V-131</td>
+          <td>D-31</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 20 12:49 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-958477</td>
+          <td>V-155</td>
+          <td>D-55</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 20 13:46 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-368375</td>
+          <td>V-144</td>
+          <td>D-44</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 20 15:35 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-878222</td>
+          <td>V-134</td>
+          <td>D-34</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 20 16:23 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-334817</td>
+          <td>V-130</td>
+          <td>D-30</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 20 18:11 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-190208</td>
+          <td>V-133</td>
+          <td>D-33</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 20 19:21 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-529076</td>
+          <td>V-154</td>
+          <td>D-54</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 20 19:50 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-572934</td>
+          <td>V-149</td>
+          <td>D-49</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 20 20:44 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-456294</td>
+          <td>V-132</td>
+          <td>D-32</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 20 22:31 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-272785</td>
+          <td>V-145</td>
+          <td>D-45</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 21 10:36 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-723337</td>
+          <td>V-155</td>
+          <td>D-55</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 21 12:00 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-131693</td>
+          <td>V-142</td>
+          <td>D-17</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 21 12:48 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-129415</td>
+          <td>V-152</td>
+          <td>D-52</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 21 14:56 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-282196</td>
+          <td>V-121</td>
+          <td>D-21</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 21 15:51 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-155289</td>
+          <td>V-144</td>
+          <td>D-44</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 21 17:17 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-694581</td>
+          <td>V-109</td>
+          <td>D-09</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 21 17:21 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">82.5</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-306931</td>
+          <td>V-131</td>
+          <td>D-31</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Cylinder misfire)</span></td>
+          <td style="font-size:12px;color:#555">Sep 09 21:37 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">70.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-649529</td>
+          <td>V-126</td>
+          <td>D-26</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Cylinder misfire)</span></td>
+          <td style="font-size:12px;color:#555">Sep 11 21:30 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">70.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-963629</td>
+          <td>V-111</td>
+          <td>D-11</td>
+          <td>North Yard</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Cylinder misfire)</span></td>
+          <td style="font-size:12px;color:#555">Sep 12 19:51 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">70.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-417929</td>
+          <td>V-113</td>
+          <td>D-13</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Cylinder misfire)</span></td>
+          <td style="font-size:12px;color:#555">Sep 13 20:50 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">70.0</td>
+        </tr>
+        <tr style="background:#fff8f8">
+          <td style="font-size:11px;color:#9ca3af">A-451310</td>
+          <td>V-101</td>
+          <td>D-01</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Engine fault <span style="color:#666;font-size:11px">(Cylinder misfire)</span> <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 15 14:26 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">70.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-410905</td>
+          <td>V-110</td>
+          <td>D-10</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Speeding</td>
+          <td style="font-size:12px;color:#555">Sep 19 18:48 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">67.5</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-879209</td>
+          <td>V-115</td>
+          <td>D-15</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Speeding</td>
+          <td style="font-size:12px;color:#555">Sep 20 12:19 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">67.5</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-275168</td>
+          <td>V-126</td>
+          <td>D-26</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Speeding</td>
+          <td style="font-size:12px;color:#555">Sep 20 17:59 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">67.5</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-136005</td>
+          <td>V-140</td>
+          <td>D-40</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Speeding</td>
+          <td style="font-size:12px;color:#555">Sep 20 18:45 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">67.5</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-892402</td>
+          <td>V-132</td>
+          <td>D-32</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Speeding</td>
+          <td style="font-size:12px;color:#555">Sep 20 22:05 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">67.5</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-497891</td>
+          <td>V-154</td>
+          <td>D-54</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Speeding</td>
+          <td style="font-size:12px;color:#555">Sep 20 22:17 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">67.5</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-397415</td>
+          <td>V-152</td>
+          <td>D-52</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Speeding</td>
+          <td style="font-size:12px;color:#555">Sep 20 22:38 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">67.5</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-764438</td>
+          <td>V-107</td>
+          <td>D-07</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Speeding</td>
+          <td style="font-size:12px;color:#555">Sep 21 11:18 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">67.5</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-499036</td>
+          <td>V-134</td>
+          <td>D-34</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Speeding</td>
+          <td style="font-size:12px;color:#555">Sep 21 12:09 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">67.5</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-255758</td>
+          <td>V-123</td>
+          <td>D-23</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Speeding</td>
+          <td style="font-size:12px;color:#555">Sep 21 12:22 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">67.5</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-462157</td>
+          <td>V-151</td>
+          <td>D-51</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Speeding</td>
+          <td style="font-size:12px;color:#555">Sep 21 13:26 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">67.5</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-622015</td>
+          <td>V-104</td>
+          <td>D-04</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Speeding</td>
+          <td style="font-size:12px;color:#555">Sep 21 14:30 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">67.5</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-128343</td>
+          <td>V-122</td>
+          <td>D-22</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Speeding</td>
+          <td style="font-size:12px;color:#555">Sep 21 14:40 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">67.5</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-463368</td>
+          <td>V-106</td>
+          <td>D-06</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Speeding</td>
+          <td style="font-size:12px;color:#555">Sep 21 14:52 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">67.5</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-900486</td>
+          <td>V-141</td>
+          <td>D-41</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Speeding</td>
+          <td style="font-size:12px;color:#555">Sep 21 15:42 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">67.5</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-979952</td>
+          <td>V-125</td>
+          <td>D-25</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 17 18:27 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-882486</td>
+          <td>V-106</td>
+          <td>D-06</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 17 19:06 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-469863</td>
+          <td>V-101</td>
+          <td>D-01</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 17 22:54 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-362758</td>
+          <td>V-141</td>
+          <td>D-41</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 18 10:00 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-212739</td>
+          <td>V-150</td>
+          <td>D-50</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 18 10:19 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-883220</td>
+          <td>V-136</td>
+          <td>D-36</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 18 11:53 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-399454</td>
+          <td>V-112</td>
+          <td>D-12</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 18 13:31 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-577680</td>
+          <td>V-113</td>
+          <td>D-13</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 18 14:00 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-901788</td>
+          <td>V-112</td>
+          <td>D-12</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 18 14:23 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-635002</td>
+          <td>V-131</td>
+          <td>D-31</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 18 14:46 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-584418</td>
+          <td>V-138</td>
+          <td>D-38</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 18 16:47 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-495429</td>
+          <td>V-153</td>
+          <td>D-53</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 18 16:55 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-739393</td>
+          <td>V-137</td>
+          <td>D-37</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#16a34a;font-size:11px">fixed</span> <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 18 17:33 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-643452</td>
+          <td>V-140</td>
+          <td>D-40</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 18 19:15 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-743561</td>
+          <td>V-139</td>
+          <td>D-39</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 18 20:10 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-479854</td>
+          <td>V-147</td>
+          <td>D-47</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 18 22:39 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-880215</td>
+          <td>V-143</td>
+          <td>D-43</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 18 22:56 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-830810</td>
+          <td>V-144</td>
+          <td>D-44</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 19 10:34 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-144406</td>
+          <td>V-135</td>
+          <td>D-35</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 19 10:46 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-338937</td>
+          <td>V-101</td>
+          <td>D-01</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 19 11:09 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-775903</td>
+          <td>V-121</td>
+          <td>D-21</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 19 11:16 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-253742</td>
+          <td>V-138</td>
+          <td>D-38</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 19 11:31 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-466034</td>
+          <td>V-127</td>
+          <td>D-27</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 19 13:02 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-325548</td>
+          <td>V-134</td>
+          <td>D-34</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 19 13:40 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-656353</td>
+          <td>V-156</td>
+          <td>D-56</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 19 13:57 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-271194</td>
+          <td>V-159</td>
+          <td>D-59</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 19 15:10 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">66.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-377146</td>
+          <td>V-145</td>
+          <td>D-45</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#f0fdf4;color:#16a34a;border:1px solid #16a34a;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">LOW</span></span></td>
+          <td>Maintenance due</td>
+          <td style="font-size:12px;color:#555">Sep 20 06:00 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">59.2</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-270055</td>
+          <td>V-133</td>
+          <td>D-33</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 08 11:22 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-224836</td>
+          <td>V-117</td>
+          <td>D-42</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 08 11:49 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-481040</td>
+          <td>V-130</td>
+          <td>D-30</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 08 12:21 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-751079</td>
+          <td>V-138</td>
+          <td>D-38</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 08 14:32 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-697243</td>
+          <td>V-137</td>
+          <td>D-37</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#16a34a;font-size:11px">fixed</span> <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 08 14:43 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-381585</td>
+          <td>V-143</td>
+          <td>D-43</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 08 14:57 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-682003</td>
+          <td>V-131</td>
+          <td>D-31</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 08 15:00 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-752517</td>
+          <td>V-159</td>
+          <td>D-59</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 08 16:00 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-447044</td>
+          <td>V-111</td>
+          <td>D-11</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 08 19:05 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-446829</td>
+          <td>V-119</td>
+          <td>D-19</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 08 20:19 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-836411</td>
+          <td>V-114</td>
+          <td>D-14</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 08 21:24 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-937254</td>
+          <td>V-150</td>
+          <td>D-50</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 09 10:56 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-406171</td>
+          <td>V-154</td>
+          <td>D-54</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 09 11:37 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-837058</td>
+          <td>V-115</td>
+          <td>D-15</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 09 12:12 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-708549</td>
+          <td>V-117</td>
+          <td>D-42</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 09 12:22 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-126090</td>
+          <td>V-160</td>
+          <td>D-60</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 09 15:38 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-984398</td>
+          <td>V-160</td>
+          <td>D-60</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 09 16:22 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-350123</td>
+          <td>V-145</td>
+          <td>D-45</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 09 16:35 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-732984</td>
+          <td>V-149</td>
+          <td>D-49</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 09 16:36 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-924419</td>
+          <td>V-132</td>
+          <td>D-32</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 09 17:35 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-421327</td>
+          <td>V-124</td>
+          <td>D-24</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 09 18:07 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-964576</td>
+          <td>V-145</td>
+          <td>D-45</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 09 20:23 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-292934</td>
+          <td>V-144</td>
+          <td>D-44</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 09 22:58 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-574438</td>
+          <td>V-147</td>
+          <td>D-47</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 10 12:29 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-322379</td>
+          <td>V-112</td>
+          <td>D-12</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 10 12:52 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-667744</td>
+          <td>V-114</td>
+          <td>D-14</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 10 15:43 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-440785</td>
+          <td>V-116</td>
+          <td>D-16</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 10 15:46 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-255733</td>
+          <td>V-156</td>
+          <td>D-56</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 10 16:11 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-418952</td>
+          <td>V-153</td>
+          <td>D-53</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 10 18:46 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-126244</td>
+          <td>V-151</td>
+          <td>D-51</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 10 21:08 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-763232</td>
+          <td>V-124</td>
+          <td>D-24</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 10 21:28 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-172831</td>
+          <td>V-103</td>
+          <td>D-03</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 10 22:10 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-199727</td>
+          <td>V-111</td>
+          <td>D-11</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 10 22:32 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-885413</td>
+          <td>V-108</td>
+          <td>D-08</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 10 22:43 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-425959</td>
+          <td>V-128</td>
+          <td>D-28</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 10 22:59 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-588763</td>
+          <td>V-148</td>
+          <td>D-48</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 10:08 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-260894</td>
+          <td>V-111</td>
+          <td>D-11</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 11:06 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-921622</td>
+          <td>V-114</td>
+          <td>D-14</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 11 11:14 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-577148</td>
+          <td>V-113</td>
+          <td>D-13</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 12:11 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-514824</td>
+          <td>V-107</td>
+          <td>D-07</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 13:17 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-555973</td>
+          <td>V-134</td>
+          <td>D-34</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 14:07 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-491712</td>
+          <td>V-157</td>
+          <td>D-57</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 14:17 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-918590</td>
+          <td>V-160</td>
+          <td>D-60</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 14:30 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-306026</td>
+          <td>V-122</td>
+          <td>D-22</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 14:50 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-200757</td>
+          <td>V-120</td>
+          <td>D-20</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 14:52 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-262641</td>
+          <td>V-150</td>
+          <td>D-50</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 15:27 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-162363</td>
+          <td>V-122</td>
+          <td>D-22</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 15:39 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-827336</td>
+          <td>V-155</td>
+          <td>D-55</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 17:05 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-681128</td>
+          <td>V-157</td>
+          <td>D-57</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 18:25 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-739375</td>
+          <td>V-151</td>
+          <td>D-51</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 18:59 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-788448</td>
+          <td>V-120</td>
+          <td>D-20</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 20:35 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-537946</td>
+          <td>V-105</td>
+          <td>D-05</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 20:44 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-306016</td>
+          <td>V-124</td>
+          <td>D-24</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 11 22:14 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-276139</td>
+          <td>V-129</td>
+          <td>D-29</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 12 12:10 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-649101</td>
+          <td>V-155</td>
+          <td>D-55</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 12 16:53 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-209998</td>
+          <td>V-119</td>
+          <td>D-19</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 12 18:14 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-967777</td>
+          <td>V-152</td>
+          <td>D-52</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 12 18:55 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-145586</td>
+          <td>V-120</td>
+          <td>D-20</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 12 19:13 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-519820</td>
+          <td>V-150</td>
+          <td>D-50</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 13 10:39 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-569020</td>
+          <td>V-121</td>
+          <td>D-21</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 13 11:54 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-722420</td>
+          <td>V-129</td>
+          <td>D-29</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 13 13:22 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-762109</td>
+          <td>V-130</td>
+          <td>D-30</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 13 13:31 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-535899</td>
+          <td>V-156</td>
+          <td>D-56</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 13 14:25 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-579523</td>
+          <td>V-114</td>
+          <td>D-14</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 13 15:03 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-446007</td>
+          <td>V-101</td>
+          <td>D-01</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 13 16:04 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-424802</td>
+          <td>V-130</td>
+          <td>D-30</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 13 17:43 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-805903</td>
+          <td>V-106</td>
+          <td>D-06</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 13 18:20 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-385831</td>
+          <td>V-127</td>
+          <td>D-27</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 13 19:11 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-128326</td>
+          <td>V-107</td>
+          <td>D-07</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 13 19:44 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-587643</td>
+          <td>V-123</td>
+          <td>D-23</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 13 20:09 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-873587</td>
+          <td>V-136</td>
+          <td>D-36</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 13 21:00 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-914634</td>
+          <td>V-141</td>
+          <td>D-41</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 13 21:43 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-235121</td>
+          <td>V-107</td>
+          <td>D-07</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 13 22:46 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-872533</td>
+          <td>V-160</td>
+          <td>D-60</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 10:56 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-994568</td>
+          <td>V-131</td>
+          <td>D-31</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 11:19 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-922559</td>
+          <td>V-127</td>
+          <td>D-27</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 11:20 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-412744</td>
+          <td>V-150</td>
+          <td>D-50</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 11:37 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-710818</td>
+          <td>V-136</td>
+          <td>D-36</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 11:37 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-195150</td>
+          <td>V-149</td>
+          <td>D-49</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 14 11:52 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-908266</td>
+          <td>V-104</td>
+          <td>D-04</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 14:27 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-514194</td>
+          <td>V-149</td>
+          <td>D-49</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 14 15:00 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-388287</td>
+          <td>V-114</td>
+          <td>D-14</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 15:37 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-357940</td>
+          <td>V-113</td>
+          <td>D-13</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 15:56 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-556902</td>
+          <td>V-106</td>
+          <td>D-06</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 18:14 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-766387</td>
+          <td>V-124</td>
+          <td>D-24</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 18:30 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-902246</td>
+          <td>V-124</td>
+          <td>D-24</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 18:48 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-986690</td>
+          <td>V-150</td>
+          <td>D-50</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 19:11 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-470887</td>
+          <td>V-121</td>
+          <td>D-21</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 14 19:32 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-305056</td>
+          <td>V-118</td>
+          <td>D-18</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 21:23 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-268919</td>
+          <td>V-138</td>
+          <td>D-38</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 21:24 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-484536</td>
+          <td>V-114</td>
+          <td>D-14</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 22:54 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-939534</td>
+          <td>V-124</td>
+          <td>D-24</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 14 22:58 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-320961</td>
+          <td>V-128</td>
+          <td>D-28</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 15 10:51 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-628559</td>
+          <td>V-153</td>
+          <td>D-53</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 15 11:28 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-859204</td>
+          <td>V-151</td>
+          <td>D-51</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 15 12:17 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-533821</td>
+          <td>V-128</td>
+          <td>D-28</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 15 12:50 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-747564</td>
+          <td>V-118</td>
+          <td>D-18</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 15 13:24 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-624997</td>
+          <td>V-148</td>
+          <td>D-48</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 15 13:54 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-363339</td>
+          <td>V-110</td>
+          <td>D-10</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 15 15:54 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-884100</td>
+          <td>V-141</td>
+          <td>D-41</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 15 19:15 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-779505</td>
+          <td>V-123</td>
+          <td>D-23</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 15 19:42 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-433761</td>
+          <td>V-159</td>
+          <td>D-59</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 15 20:16 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-363842</td>
+          <td>V-153</td>
+          <td>D-53</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#9ca3af;font-size:10px">fw</span></td>
+          <td style="font-size:12px;color:#555">Sep 15 21:26 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-337991</td>
+          <td>V-151</td>
+          <td>D-51</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 16 10:02 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-434358</td>
+          <td>V-116</td>
+          <td>D-16</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 16 10:38 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-189128</td>
+          <td>V-144</td>
+          <td>D-44</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 16 11:09 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-905442</td>
+          <td>V-156</td>
+          <td>D-56</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 16 11:52 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-701560</td>
+          <td>V-130</td>
+          <td>D-30</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 16 11:52 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-514196</td>
+          <td>V-134</td>
+          <td>D-34</td>
+          <td>Airport Hub</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 16 13:09 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-476589</td>
+          <td>V-117</td>
+          <td>D-42</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 16 14:13 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-580970</td>
+          <td>V-126</td>
+          <td>D-26</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 16 15:29 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-695258</td>
+          <td>V-123</td>
+          <td>D-23</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 16 16:07 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-382188</td>
+          <td>V-149</td>
+          <td>D-49</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking <span style="color:#16a34a;font-size:11px">fixed</span></td>
+          <td style="font-size:12px;color:#555">Sep 16 17:53 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-971090</td>
+          <td>V-120</td>
+          <td>D-20</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 16 18:09 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-340115</td>
+          <td>V-141</td>
+          <td>D-41</td>
+          <td>North Yard</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 16 20:18 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr>
+        <tr style="background:#fffcf0">
+          <td style="font-size:11px;color:#9ca3af">A-306586</td>
+          <td>V-104</td>
+          <td>D-04</td>
+          <td>Hamilton Depot</td>
+          <td><span style="background:#fffbeb;color:#d97706;border:1px solid #d97706;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">MEDIUM</span></td>
+          <td><span style="font-size:11px"><span style="background:#fef2f2;color:#dc2626;border:1px solid #dc2626;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;">HIGH</span></span></td>
+          <td>Harsh braking</td>
+          <td style="font-size:12px;color:#555">Sep 16 20:32 ET</td>
+          <td style="text-align:right;font-weight:600;color:#1e40af">55.0</td>
+        </tr></tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <div style="color:#9ca3af;font-size:12px;text-align:center;padding:16px 0">
+    Maple Freight Dispatch Decision Board · Data export Sep 21 2026 18:00 ET · Rule-based scoring + AI briefing
+  </div>
+</div>
+
+<script>
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

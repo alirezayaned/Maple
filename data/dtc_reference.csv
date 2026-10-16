@@ -1,0 +1,7 @@
+dtc_code,meaning,reference_urgency
+P0217,Engine coolant over-temperature condition,"Critical - stop vehicle, risk of engine damage"
+P0524,Engine oil pressure too low,Critical - stop vehicle immediately
+P0300,Random/multiple cylinder misfire detected,High - inspect within 24 h
+P0171,System too lean (bank 1),Medium - inspect at next service
+P0128,Coolant thermostat below regulating temperature,Low - monitor
+P0420,Catalyst system efficiency below threshold,"Low - emissions, schedule repair"
