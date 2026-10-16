@@ -300,46 +300,87 @@ def call_gemini(prompt):
     return None
 
 
-def validate_ai_output(text, valid_vehicles):
-    if not text or len(text) < 50:
-        return False
-    lines = text.split("\n")
-    if any(line.count(lines[0]) > 2 for line in lines if len(line) > 20):
-        return False
-    # Check for hallucinated vehicle IDs
+def validate_ai_output(text, valid_vehicles, blockers=None, stats=None):
     import re
+    if not text or len(text) < 50:
+        return False, "too short"
+    lines = text.split("\n")
+    non_empty = [l for l in lines if len(l.strip()) > 20]
+    if non_empty:
+        for line in non_empty:
+            if sum(1 for other in non_empty if other == line) > 3:
+                return False, "repetition loop"
     mentioned = set(re.findall(r"V-\d+", text))
     hallucinated = mentioned - valid_vehicles
-    if len(hallucinated) > 0:
-        return False
-    return True
+    if hallucinated:
+        return False, f"hallucinated vehicles: {hallucinated}"
+    mentioned_drivers = set(re.findall(r"D-\d+", text))
+    valid_drivers = {f"D-{i:02d}" for i in range(1, 61)}
+    bad_drivers = mentioned_drivers - valid_drivers
+    if bad_drivers:
+        return False, f"hallucinated drivers: {bad_drivers}"
+    if blockers:
+        blocker_vids = {b["vehicle_id"] for b in blockers}
+        for vid in mentioned:
+            text_lower = text.lower()
+            idx = text_lower.find(vid.lower())
+            if idx >= 0:
+                vid_context = text_lower[max(0, idx-100):idx+100]
+                if vid not in blocker_vids and any(w in vid_context for w in
+                        ["blocker", "block", "do not dispatch", "stop vehicle", "must not"]):
+                    return False, f"{vid} called a blocker but isn't one"
+    if stats:
+        dup_match = re.search(r"no\s+(?:issues?\s+with\s+)?duplicate", text, re.IGNORECASE)
+        if dup_match and stats.get("duplicates", 0) > 0:
+            return False, f"claims no duplicates but we found {stats['duplicates']}"
+        pct_match = re.search(r"(\d+)%\s*[Dd]uplicate", text)
+        if pct_match:
+            claimed_pct = int(pct_match.group(1))
+            actual_pct = round(stats.get("duplicates", 0) / max(stats.get("total_raw", 1), 1) * 100)
+            if abs(claimed_pct - actual_pct) > 10:
+                return False, f"claims {claimed_pct}% duplicates, actual is ~{actual_pct}%"
+    return True, "ok"
+
+
+def strip_markdown(text):
+    import re
+    text = re.sub(r'^#{1,6}\s+', '', text, flags=re.MULTILINE)
+    text = re.sub(r'\*\*(.+?)\*\*', r'\1', text)
+    text = re.sub(r'\*(.+?)\*', r'\1', text)
+    text = re.sub(r'^-{3,}$', '', text, flags=re.MULTILINE)
+    text = re.sub(r'^\s*[-*]\s+', '- ', text, flags=re.MULTILINE)
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    return text.strip()
 
 
 def generate_ai_briefing(stats, blockers, top10, driver_top, post_repair_faults, depot_stats):
     prompt = build_ai_prompt(stats, blockers, top10, driver_top, post_repair_faults, depot_stats)
     valid_vids = {f"V-{i}" for i in range(101, 161)}
+    full_stats = {**stats, "total_raw": stats.get("total_raw", 0)}
 
     # Try Gemini first (better quality)
     print("  Trying Gemini...")
     result = call_gemini(prompt)
-    if result and validate_ai_output(result, valid_vids):
-        print("  Gemini briefing generated.")
-        return result
-    elif result:
-        print("  Gemini output failed validation.")
+    if result:
+        ok, reason = validate_ai_output(result, valid_vids, blockers, full_stats)
+        if ok:
+            print("  Gemini briefing generated.")
+            return strip_markdown(result), "gemini"
+        print(f"  Gemini output failed validation: {reason}")
 
     # Try Ollama
     print("  Trying Ollama (local)...")
     result = call_ollama(prompt)
-    if result and validate_ai_output(result, valid_vids):
-        print("  Ollama briefing generated.")
-        return result
-    elif result:
-        print("  Ollama output failed validation (hallucinated data).")
+    if result:
+        ok, reason = validate_ai_output(result, valid_vids, blockers, full_stats)
+        if ok:
+            print("  Ollama briefing generated.")
+            return strip_markdown(result), "ollama"
+        print(f"  Ollama output failed validation: {reason}")
 
     # Fall back to template
     print("  Using template briefing (reliable, data-driven).")
-    return generate_template_briefing(stats, blockers, top10, post_repair_faults)
+    return generate_template_briefing(stats, blockers, top10, post_repair_faults), "template"
 
 
 def generate_template_briefing(stats, blockers, top10, post_repair_faults):
@@ -586,14 +627,14 @@ def main():
 
     # AI Briefing
     print("Generating AI briefing...")
-    briefing = generate_ai_briefing(stats, blockers, top10, driver_list,
-                                     post_repair_faults, depot_stats)
+    briefing, ai_source = generate_ai_briefing(stats, blockers, top10, driver_list,
+                                                post_repair_faults, depot_stats)
     print("  Done.")
 
     # Render HTML
     all_alerts_sorted = sorted(scored, key=lambda x: x["score"], reverse=True)
     html = render_html(blockers, top10, driver_list, all_alerts_sorted[:200],
-                       depot_stats, stats, post_repair_faults, briefing)
+                       depot_stats, stats, post_repair_faults, briefing, ai_source)
     out = Path(__file__).parent / "report.html"
     out.write_text(html, encoding="utf-8")
     print(f"\nReport written to {out}")
@@ -616,10 +657,18 @@ def badge(sev, text=None):
 
 
 def render_html(blockers, top10, driver_list, all_alerts, depot_stats, stats,
-                post_repair_faults, briefing):
+                post_repair_faults, briefing, ai_source="template"):
 
     # Briefing section
     briefing_html = briefing.replace("\n", "<br>\n") if briefing else ""
+    ai_label = {"gemini": "Gemini 3.8 Flash", "ollama": "Ollama (local)", "template": "Template (rule-based)"}
+    ai_confidence = {"gemini": ("high", "#16a34a", "#f0fdf4"),
+                     "ollama": ("medium", "#d97706", "#fffbeb"),
+                     "template": ("verified", "#1d4ed8", "#eff6ff")}
+    conf_level, conf_color, conf_bg = ai_confidence.get(ai_source, ("unknown", "#6b7280", "#f3f4f6"))
+    ai_badge = (f'<span style="background:{conf_bg};color:{conf_color};border:1px solid {conf_color};'
+                f'padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;margin-left:8px">'
+                f'{ai_label.get(ai_source, ai_source)} &middot; confidence: {conf_level}</span>')
 
     # Blockers
     blocker_rows = ""
@@ -798,13 +847,34 @@ def render_html(blockers, top10, driver_list, all_alerts, depot_stats, stats,
   .tab-pane {{ display: none; }}
   .tab-pane.active {{ display: block; }}
   .scroll-x {{ overflow-x: auto; }}
+  @media (max-width: 640px) {{
+    .header {{ padding: 16px; }}
+    .header h1 {{ font-size: 18px; }}
+    .content {{ padding: 12px 8px; }}
+    .stat-box .val {{ font-size: 22px; }}
+    .stats-grid {{ grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); }}
+    .tab-btn {{ padding: 8px 10px; font-size: 12px; }}
+    td, th {{ padding: 6px 8px; font-size: 13px; }}
+    .section-header {{ flex-wrap: wrap; gap: 6px; }}
+  }}
+  @media print {{
+    .tab-pane {{ display: block !important; page-break-inside: avoid; }}
+    .tab-nav {{ display: none; }}
+    .header {{ background: #000 !important; -webkit-print-color-adjust: exact; }}
+    body {{ font-size: 11px; }}
+  }}
+  .header-actions {{ float: right; }}
+  .header-actions button {{ background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.3);
+    padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; }}
+  .header-actions button:hover {{ background: rgba(255,255,255,.25); }}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>Maple Freight – Dispatch Decision Board</h1>
-  <div class="sub">Monday, September 21, 2026 · 6:00 PM Eastern · 60 vehicles · North Yard · Airport Hub · Hamilton Depot</div>
+  <div class="header-actions"><button onclick="window.print()">Print / PDF</button></div>
+  <h1>Maple Freight &ndash; Dispatch Decision Board</h1>
+  <div class="sub">Monday, September 21, 2026 &middot; 6:00 PM Eastern &middot; 60 vehicles &middot; 3 depots &middot; Report generated {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}</div>
 </div>
 
 <div class="content">
@@ -814,8 +884,14 @@ def render_html(blockers, top10, driver_list, all_alerts, depot_stats, stats,
     <div class="section-header ai-header">
       <h2>AI Morning Briefing</h2>
       <span class="count" style="background:#dbeafe;color:#1e40af">generated from {stats['scored']} alerts</span>
+      {ai_badge}
     </div>
     <div class="briefing-box">{briefing_html}</div>
+    <div style="padding:8px 20px 14px;font-size:11px;color:#9ca3af;border-top:1px solid #f3f4f6">
+      This briefing is AI-generated and validated against the scored data. All numbers in the stats bar,
+      dispatch blockers, and action items below come from the deterministic scoring engine — not the AI.
+      If this briefing conflicts with the tables below, trust the tables.
+    </div>
   </div>
 
   <!-- Stats bar -->

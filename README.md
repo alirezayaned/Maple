@@ -19,6 +19,11 @@ python analyze.py
 # Output: report.html — open in any browser
 ```
 
+```bash
+# Run tests (66 automated checks, no dependencies):
+python tests.py
+```
+
 **Requirements:** Python 3.10+. Optional: `pip install google-generativeai` for Gemini briefing, or Ollama running locally with qwen2.5-coder:1.5b.
 
 Data files are expected at `data/` relative to `analyze.py` — the same layout as this repository. The tool is designed to be **rerun whenever new data arrives** — drop updated CSVs in `data/` and re-run.
@@ -159,7 +164,9 @@ The `Maple_Freight_New_Information/` folder contains `NEW_INFORMATION.pdf` and `
 
 8. **V-108 backfill verification:** Confirmed P0217 alert (12:05 ET) and P0524 alert (15:41 ET) from hamilton_backfill.csv both post-date WO-5512 closed on Sep 9. V-108 correctly appears as the 4th dispatch blocker with post-repair fault warnings.
 
-7. **AI output validation:** Tested qwen2.5-coder:0.5b — hallucinated V-270 (doesn't exist). Tested 1.5b — used markdown despite being told not to but data was accurate. Gemini 3.8-flash produced clean, accurate briefings. Validation function catches all three failure modes (hallucinated IDs, repetition loops, empty output).
+7. **AI output validation:** Tested qwen2.5-coder:0.5b — hallucinated V-270 (doesn't exist). Tested 1.5b — hallucinated V-19, V-20, V-205 (out of range), claimed "30% duplicates" (actual: ~6%), used markdown despite plain text instruction. Gemini 3.8-flash produced clean, accurate briefings when available. Validation function catches: hallucinated vehicle/driver IDs, repetition loops, false "no duplicates" claims, inflated duplicate percentages (>10% off actual), and non-blocker vehicles being called blockers. On failure, falls back to deterministic template briefing.
+
+9. **Automated test suite:** `python tests.py` runs 66 tests covering data loading, deduplication, OTA filtering, scoring engine, classification boundaries, work order maps, post-repair fault detection, AI output validation (7 failure modes), template briefing content, full pipeline smoke test, and HTML output verification. All 66 pass.
 
 ---
 
@@ -169,7 +176,9 @@ The `Maple_Freight_New_Information/` folder contains `NEW_INFORMATION.pdf` and `
 
 - **What AI did for me:** Claude analyzed all data files, identified the V-137 post-repair fault discrepancy, surfaced the firmware-4.2.1 confound, and wrote the scoring engine + HTML dashboard. Gemini generates the morning dispatch briefing each time the tool runs — adapting to the current data export. The AI briefing is validated before use (checking for hallucinated vehicle IDs and repetition loops).
 
-- **One thing AI got wrong or incomplete, and how I caught it:** The qwen2.5-coder:0.5b local model hallucinated a vehicle "V-270" and driver "D-53 on V-270" that don't exist in the data, and got stuck in a repetition loop outputting "157 alerts already resolved" 20+ times. I caught this by implementing an AI output validation function that checks mentioned vehicle IDs against the valid range (V-101 to V-160) and detects repetition patterns. The code now falls back to a reliable template briefing when AI output fails validation. This demonstrates why deterministic scoring (not AI) is correct for the core ranking — LLMs hallucinate on structured data.
+- **One thing AI got wrong or incomplete, and how I caught it:** Multiple local models hallucinated vehicles and facts. qwen2.5-coder:0.5b invented "V-270" and "D-53"; the 1.5b model invented V-19, V-20, V-205 (out of valid range) and claimed "30% duplicates" (actual: ~6%). I built a validation layer that catches 7 failure modes: hallucinated vehicle IDs, hallucinated driver IDs, repetition loops, false "no duplicates" claims, wrong duplicate percentages, non-blocker vehicles called blockers, and empty/short output. On any failure, the system falls back to a deterministic template briefing marked "confidence: verified." This is why AI generates the *narrative* but the deterministic engine owns the *data*.
+
+- **How a customer can rely on AI in this product:** The AI briefing is a convenience layer, not the source of truth. Every number in the stats bar, every vehicle in the dispatch blockers list, every row in the action items and driver leaderboard comes from the deterministic scoring engine — not the AI. The report includes: (1) a confidence badge showing which AI source generated the briefing (Gemini = high, Ollama = medium, Template = verified), (2) a disclaimer stating "if this briefing conflicts with the tables below, trust the tables," and (3) a validation gate that rejects hallucinated output before it reaches the user. The 66-test automated suite (`python tests.py`) verifies both the scoring engine and the AI validation layer. In production, this architecture means the operations manager gets a helpful natural-language summary when AI works, and still gets a reliable data-driven briefing when it doesn't.
 
 - **Link to / export of my AI session:** This Claude Code session — export attached at submission.
 

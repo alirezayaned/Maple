@@ -56,13 +56,34 @@
   .tab-pane { display: none; }
   .tab-pane.active { display: block; }
   .scroll-x { overflow-x: auto; }
+  @media (max-width: 640px) {
+    .header { padding: 16px; }
+    .header h1 { font-size: 18px; }
+    .content { padding: 12px 8px; }
+    .stat-box .val { font-size: 22px; }
+    .stats-grid { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); }
+    .tab-btn { padding: 8px 10px; font-size: 12px; }
+    td, th { padding: 6px 8px; font-size: 13px; }
+    .section-header { flex-wrap: wrap; gap: 6px; }
+  }
+  @media print {
+    .tab-pane { display: block !important; page-break-inside: avoid; }
+    .tab-nav { display: none; }
+    .header { background: #000 !important; -webkit-print-color-adjust: exact; }
+    body { font-size: 11px; }
+  }
+  .header-actions { float: right; }
+  .header-actions button { background: rgba(255,255,255,.15); color: #fff; border: 1px solid rgba(255,255,255,.3);
+    padding: 6px 14px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+  .header-actions button:hover { background: rgba(255,255,255,.25); }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>Maple Freight – Dispatch Decision Board</h1>
-  <div class="sub">Monday, September 21, 2026 · 6:00 PM Eastern · 60 vehicles · North Yard · Airport Hub · Hamilton Depot</div>
+  <div class="header-actions"><button onclick="window.print()">Print / PDF</button></div>
+  <h1>Maple Freight &ndash; Dispatch Decision Board</h1>
+  <div class="sub">Monday, September 21, 2026 &middot; 6:00 PM Eastern &middot; 60 vehicles &middot; 3 depots &middot; Report generated 2026-10-16 14:36</div>
 </div>
 
 <div class="content">
@@ -72,49 +93,27 @@
     <div class="section-header ai-header">
       <h2>AI Morning Briefing</h2>
       <span class="count" style="background:#dbeafe;color:#1e40af">generated from 2199 alerts</span>
+      <span style="background:#eff6ff;color:#1d4ed8;border:1px solid #1d4ed8;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;margin-left:8px">Template (rule-based) &middot; confidence: verified</span>
     </div>
-    <div class="briefing-box">### Dispatch Briefing - September 21st<br>
+    <div class="briefing-box">DISPATCH BRIEFING — Monday Sep 21, 6:00 PM ET — 2199 alerts scored, 4 vehicles blocked, 42 items ranked HIGH.<br>
 <br>
-**Status Line:** Operations Manager will read this briefing tonight and again before the dispatch tomorrow.<br>
+CRITICAL ACTIONS FOR TONIGHT:<br>
 <br>
-#### Urgent Items:<br>
+1. V-137 — Oil pressure critical (P0524) at Sep 21 14:32 ET. This is a NEW fault that appeared AFTER today's repair (WO-5540: Replaced coolant temperature sensor). DTC reference says: stop vehicle immediately. Do NOT dispatch tomorrow. Send to shop first thing for oil pressure inspection.<br>
 <br>
-##### V-108 (Hamilton Depot): Critical: Engine Overheating at Sep 21, 9 PM ET. Stop vehicle immediately.<br>
-   * **Why**: High temperature could lead to engine damage if not addressed promptly.<br>
-   <br>
-**Next Step:** <br>
-* Contact the driver D-06 and request immediate attention.<br>
+2. V-102 — Telematics unit removed for battery replacement. Truck parked in yard until new unit arrives. Not dispatched. Keep out of dispatch until work order closes.<br>
 <br>
-##### V-137 (North Yard): Critical: Oil Pressure critical at Sep 21, 5 PM ET. Stop vehicle immediately.<br>
-   * **Why**: High oil pressure could cause engine damage if not addressed promptly.<br>
-   <br>
-**Next Step:** <br>
-* Contact the driver D-09 and request immediate attention.<br>
+3. V-158 — Misfire inspection. Booked first thing 2026-09-22. Keep out of dispatch until work order closes.<br>
 <br>
-#### Note about Data Quality:<br>
-The data quality for this morning's export is high with only a few duplicates removed, indicating that most alerts are accurate. However, there were some OTA noise filters applied to reduce false positives in recent days.<br>
-  <br>
----<br>
 <br>
-**Driver Leaderboard:**<br>
-1. **D-37 on V-158:** 74 Alerts (adj score of 690), driven for over 2,480 km with firmware version 4.2.1 - inflated harsh-event detection.<br>
+DATA QUALITY NOTES: 134 duplicate alerts removed. Vendor marked 313 alerts HIGH but our re-ranking using DTC reference urgency reduces this to 42. Firmware 4.2.1 vehicles show ~40% more harsh-event alerts due to improved sensor sensitivity — compare drivers on adjusted scores, not raw counts.<br>
 <br>
-This driver has been consistently alerting to issues and is performing well in terms of driving behavior without any significant incidents or warnings about high-alerts.<br>
-  <br>
----<br>
-<br>
-**Depot Summary:**<br>
-- **Airport Hub:** High alerts (9), Medium alarms (30, 57) with one blocked vehicle. Current status indicates a steady level of maintenance due activity.<br>
-<br>
-- **Hamilton Depot:**High alerts (12),Medium alarms (86, 41). One critical issue is being addressed.<br>
-  <br>
-- **North Yard:** High alerts (22), Medium alarm (93,50) with two blocked vehicles. Current status indicates a steady level of harsh braking issues.<br>
-<br>
----<br>
-<br>
-**Summary:**<br>
-The operations manager will continue to monitor the drivers and alert them promptly for any new incidents or critical alarms that arise during this shift.<br>
-Stay tuned as we move through today’s dispatch planning process!</div>
+D-17 NOTE: Highest alert count but also highest mileage (3,650 km) and runs fw 4.2.1. After adjusting for mileage and firmware, D-17 still ranks high — coaching is warranted — but the gap vs. other drivers is smaller than raw counts suggest. Review specific HIGH events, not the total count.</div>
+    <div style="padding:8px 20px 14px;font-size:11px;color:#9ca3af;border-top:1px solid #f3f4f6">
+      This briefing is AI-generated and validated against the scored data. All numbers in the stats bar,
+      dispatch blockers, and action items below come from the deterministic scoring engine — not the AI.
+      If this briefing conflicts with the tables below, trust the tables.
+    </div>
   </div>
 
   <!-- Stats bar -->
