@@ -10,6 +10,7 @@ import re
 
 sys.path.insert(0, os.path.dirname(__file__))
 import analyze
+from eval_ai import evaluate_briefing
 
 PASS = 0
 FAIL = 0
@@ -283,6 +284,96 @@ def test_full_pipeline():
     check("Pipeline: V-108 post-repair detected", "V-108" in pr_vids)
 
 
+def test_eval_metrics():
+    print("\n--- AI Evaluation Metrics ---")
+    gt = {
+        "blockers": [
+            {"vehicle_id": "V-102", "depot": "Airport Hub", "reason": "Telematics removed"},
+            {"vehicle_id": "V-158", "depot": "North Yard", "reason": "Misfire inspection"},
+            {"vehicle_id": "V-137", "depot": "North Yard", "reason": "Oil pressure critical"},
+            {"vehicle_id": "V-108", "depot": "Hamilton Depot", "reason": "Engine overheating"},
+        ],
+        "post_repair": [
+            {"vehicle_id": "V-137", "dtc_code": "P0524", "wo_id": "WO-5540"},
+            {"vehicle_id": "V-108", "dtc_code": "P0217", "wo_id": "WO-5512"},
+        ],
+        "top10": [{"vehicle_id": "V-151", "driver_id": "D-11", "depot": "North Yard"}],
+        "stats": {"total_raw": 2380, "duplicates": 134, "scored": 2199,
+                  "my_high": 42, "blockers": 4},
+        "valid_vehicles": {f"V-{i}" for i in range(101, 161)},
+        "valid_drivers": {f"D-{i:02d}" for i in range(1, 61)},
+        "all_wo_ids": {"WO-5512", "WO-5519", "WO-5527", "WO-5531", "WO-5534",
+                       "WO-5536", "WO-5540", "WO-5541", "WO-5543"},
+    }
+
+    # Perfect briefing should score high
+    perfect = (
+        "Dispatch Briefing Monday Sep 21. 4 vehicles blocked from dispatch. "
+        "V-137 (North Yard): Oil pressure critical P0524 appeared AFTER work order WO-5540 repair. "
+        "V-108 (Hamilton Depot): Engine overheating P0217 appeared AFTER work order WO-5512 closed. "
+        "V-102 (Airport Hub): telematics removed, open work order. "
+        "V-158 (North Yard): misfire inspection pending. "
+        "134 duplicate alerts removed from 2380 raw alerts. 2199 scored, 42 HIGH. "
+        "Vendor over-reported HIGH severity. Re-ranked using DTC reference."
+    )
+    r = evaluate_briefing(perfect, gt)
+    check("Perfect briefing >= A grade", r["grade"] == "A", f"got {r['grade']} ({r['overall_score']:.0%})")
+    check("Perfect: no hallucinations", r["metrics"]["hallucination"]["score"] >= 0.9)
+    check("Perfect: faithful", r["metrics"]["faithfulness"]["score"] >= 0.8)
+    check("Perfect: numerically accurate", r["metrics"]["numerical_accuracy"]["score"] >= 0.8)
+
+    # Hallucinated briefing should score low on hallucination
+    hallucinated = (
+        "V-270 is the worst vehicle. D-53 drives V-270 at Hamilton. "
+        "WO-9999 was opened for V-270. P9999 fault code detected. "
+        "V-145 must not dispatch, it is a blocker."
+    )
+    r2 = evaluate_briefing(hallucinated, gt)
+    check("Hallucinated: low hallucination score", r2["metrics"]["hallucination"]["score"] <= 0.3,
+          f"got {r2['metrics']['hallucination']['score']:.0%}")
+    check("Hallucinated: has critical issues",
+          any(i["severity"] == "critical" for i in r2["issues"]))
+    check("Hallucinated: overall grade D or F", r2["grade"] in ("D", "F"),
+          f"got {r2['grade']}")
+
+    # Incomplete briefing should lose completeness points
+    incomplete = "Status: Monday Sep 21. V-137 has oil pressure issues. 134 duplicates. Vendor over-reports."
+    r3 = evaluate_briefing(incomplete, gt)
+    check("Incomplete: completeness < 70%", r3["metrics"]["completeness"]["score"] < 0.7,
+          f"got {r3['metrics']['completeness']['score']:.0%}")
+
+    # Wrong numbers should fail numerical accuracy
+    wrong_nums = (
+        "V-137 is critical. V-108 needs attention. V-102 in shop. V-158 pending. "
+        "There are 5000 raw alerts total with 800 duplicates and 100 HIGH ranked items. "
+        "2199 scored alerts."
+    )
+    r4 = evaluate_briefing(wrong_nums, gt)
+    check("Wrong numbers: numerical accuracy < 60%",
+          r4["metrics"]["numerical_accuracy"]["score"] < 0.6,
+          f"got {r4['metrics']['numerical_accuracy']['score']:.0%}")
+
+    # Empty should get F
+    r5 = evaluate_briefing("", gt)
+    check("Empty briefing: grade F", r5["grade"] == "F")
+
+    # Template briefing (the actual fallback)
+    stats = {"scored": 2199, "duplicates": 134, "ota_filtered": 23,
+             "vendor_high": 313, "my_high": 42, "already_fixed": 157}
+    blockers = gt["blockers"][:2]
+    blockers[0]["source"] = "work_order"
+    blockers[0]["detail"] = "test"
+    blockers[1]["source"] = "work_order"
+    blockers[1]["detail"] = "test"
+    post_repair = [{"vehicle_id": "V-137", "dtc_label": "Oil pressure critical",
+                    "dtc_code": "P0524", "alert_time_et": "Sep 21 14:32 ET",
+                    "wo_id": "WO-5540", "wo_work": "Replaced coolant temperature sensor"}]
+    template = analyze.generate_template_briefing(stats, blockers, [], post_repair)
+    r6 = evaluate_briefing(template, gt)
+    check("Template briefing >= B grade", r6["grade"] in ("A", "B"),
+          f"got {r6['grade']} ({r6['overall_score']:.0%})")
+
+
 def test_html_output():
     print("\n--- HTML Output ---")
     report_path = analyze.Path(__file__).parent / "report.html"
@@ -302,6 +393,8 @@ def test_html_output():
     check("HTML has confidence badge", "confidence:" in html)
     check("HTML has disclaimer", "trust the tables" in html)
     check("HTML has print button", "Print / PDF" in html)
+    check("HTML has eval scorecard", "AI Briefing Quality" in html)
+    check("HTML has eval metrics", "Faithfulness" in html and "Hallucination" in html)
     check("HTML has tabs", "switchTab" in html)
     check("HTML < 500KB", len(html) < 500_000, f"size={len(html)}")
 
@@ -321,6 +414,7 @@ if __name__ == "__main__":
     test_ai_validation()
     test_template_briefing()
     test_full_pipeline()
+    test_eval_metrics()
     test_html_output()
 
     print("\n" + "=" * 60)

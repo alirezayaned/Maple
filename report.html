@@ -83,7 +83,7 @@
 <div class="header">
   <div class="header-actions"><button onclick="window.print()">Print / PDF</button></div>
   <h1>Maple Freight &ndash; Dispatch Decision Board</h1>
-  <div class="sub">Monday, September 21, 2026 &middot; 6:00 PM Eastern &middot; 60 vehicles &middot; 3 depots &middot; Report generated 2026-10-16 14:36</div>
+  <div class="sub">Monday, September 21, 2026 &middot; 6:00 PM Eastern &middot; 60 vehicles &middot; 3 depots &middot; Report generated 2026-10-16 14:45</div>
 </div>
 
 <div class="content">
@@ -113,6 +113,88 @@ D-17 NOTE: Highest alert count but also highest mileage (3,650 km) and runs fw 4
       This briefing is AI-generated and validated against the scored data. All numbers in the stats bar,
       dispatch blockers, and action items below come from the deterministic scoring engine — not the AI.
       If this briefing conflicts with the tables below, trust the tables.
+    </div>
+    <div style="padding:16px 20px">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px">
+        <div style="width:56px;height:56px;border-radius:50%;background:#16a34a;color:#fff;
+             display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800">A</div>
+        <div>
+          <div style="font-size:18px;font-weight:700">AI Briefing Quality: 92%</div>
+          <div style="font-size:12px;color:#6b7280">Evaluated against deterministic engine ground truth</div>
+        </div>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr>
+          <th style="text-align:left;font-size:11px;color:#9ca3af;padding:4px 8px">METRIC</th>
+          <th style="text-align:left;font-size:11px;color:#9ca3af;padding:4px 8px">SCORE</th>
+          <th style="text-align:left;font-size:11px;color:#9ca3af;padding:4px 8px">DETAIL</th>
+          <th style="text-align:center;font-size:11px;color:#9ca3af;padding:4px 8px">WEIGHT</th>
+        </tr></thead>
+        <tbody><tr>
+          <td style="font-weight:600;font-size:13px">Faithfulness</td>
+          <td style="width:50%">
+            <div style="background:#f3f4f6;border-radius:4px;height:18px;position:relative">
+              <div style="background:#16a34a;border-radius:4px;height:100%;width:100%;min-width:2px"></div>
+              <span style="position:absolute;right:6px;top:1px;font-size:11px;color:#374151">100%</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:#6b7280">1 correct, 0 partial, 0 wrong</td>
+          <td style="font-size:11px;color:#9ca3af;text-align:center">30%</td>
+        </tr>
+<tr>
+          <td style="font-weight:600;font-size:13px">Completeness</td>
+          <td style="width:50%">
+            <div style="background:#f3f4f6;border-radius:4px;height:18px;position:relative">
+              <div style="background:#d97706;border-radius:4px;height:100%;width:66%;min-width:2px"></div>
+              <span style="position:absolute;right:6px;top:1px;font-size:11px;color:#374151">67%</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:#6b7280">6/9 items covered, 3 missing</td>
+          <td style="font-size:11px;color:#9ca3af;text-align:center">20%</td>
+        </tr>
+<tr>
+          <td style="font-weight:600;font-size:13px">Hallucination</td>
+          <td style="width:50%">
+            <div style="background:#f3f4f6;border-radius:4px;height:18px;position:relative">
+              <div style="background:#16a34a;border-radius:4px;height:100%;width:100%;min-width:2px"></div>
+              <span style="position:absolute;right:6px;top:1px;font-size:11px;color:#374151">100%</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:#6b7280">0 hallucinations found in 4 checks</td>
+          <td style="font-size:11px;color:#9ca3af;text-align:center">25%</td>
+        </tr>
+<tr>
+          <td style="font-weight:600;font-size:13px">Numerical Accuracy</td>
+          <td style="width:50%">
+            <div style="background:#f3f4f6;border-radius:4px;height:18px;position:relative">
+              <div style="background:#16a34a;border-radius:4px;height:100%;width:100%;min-width:2px"></div>
+              <span style="position:absolute;right:6px;top:1px;font-size:11px;color:#374151">100%</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:#6b7280">3/3 numbers accurate</td>
+          <td style="font-size:11px;color:#9ca3af;text-align:center">15%</td>
+        </tr>
+<tr>
+          <td style="font-weight:600;font-size:13px">Relevance</td>
+          <td style="width:50%">
+            <div style="background:#f3f4f6;border-radius:4px;height:18px;position:relative">
+              <div style="background:#16a34a;border-radius:4px;height:100%;width:83%;min-width:2px"></div>
+              <span style="position:absolute;right:6px;top:1px;font-size:11px;color:#374151">83%</span>
+            </div>
+          </td>
+          <td style="font-size:12px;color:#6b7280">2 good, 1 partial, 0 poor priorities</td>
+          <td style="font-size:11px;color:#9ca3af;text-align:center">10%</td>
+        </tr>
+</tbody>
+      </table>
+      <div style="margin-top:12px;padding:10px 16px;background:#fef2f2;
+                         border-radius:6px;border:1px solid #fecaca">
+          <div style="font-size:12px;font-weight:600;color:#991b1b;margin-bottom:6px">
+            Issues Found (3)</div>
+          <div style="padding:4px 0;font-size:12px"><span style="color:#ea580c;font-weight:700;margin-right:6px">[!]</span>Dispatch blocker V-108 not mentioned</div>
+<div style="padding:4px 0;font-size:12px"><span style="color:#d97706;font-weight:700;margin-right:6px">[~]</span>Post-repair fault V-108/P0217 not mentioned</div>
+<div style="padding:4px 0;font-size:12px"><span style="color:#d97706;font-weight:700;margin-right:6px">[~]</span>Post-repair fault V-108/P0524 not mentioned</div>
+</div>
     </div>
   </div>
 

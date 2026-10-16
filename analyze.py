@@ -21,6 +21,14 @@ from collections import defaultdict
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
+import importlib.util
+_eval_spec = importlib.util.spec_from_file_location("eval_ai", Path(__file__).parent / "eval_ai.py")
+_eval_mod = importlib.util.module_from_spec(_eval_spec)
+_eval_spec.loader.exec_module(_eval_mod)
+evaluate_briefing = _eval_mod.evaluate_briefing
+format_eval_text = _eval_mod.format_eval_text
+format_eval_html = _eval_mod.format_eval_html
+
 try:
     import google.generativeai as genai
     GENAI_AVAILABLE = True
@@ -631,10 +639,26 @@ def main():
                                                 post_repair_faults, depot_stats)
     print("  Done.")
 
+    # Evaluate AI briefing against ground truth
+    all_wo_ids = {w["wo_id"] for w in work_orders}
+    ground_truth = {
+        "blockers": blockers,
+        "post_repair": post_repair_faults,
+        "top10": top10,
+        "stats": stats,
+        "driver_top5": driver_list[:5],
+        "valid_vehicles": {f"V-{i}" for i in range(101, 161)},
+        "valid_drivers": {f"D-{i:02d}" for i in range(1, 61)},
+        "all_wo_ids": all_wo_ids,
+    }
+    eval_report = evaluate_briefing(briefing, ground_truth)
+    print(f"  AI Eval: {format_eval_text(eval_report)}")
+
     # Render HTML
     all_alerts_sorted = sorted(scored, key=lambda x: x["score"], reverse=True)
     html = render_html(blockers, top10, driver_list, all_alerts_sorted[:200],
-                       depot_stats, stats, post_repair_faults, briefing, ai_source)
+                       depot_stats, stats, post_repair_faults, briefing, ai_source,
+                       eval_report)
     out = Path(__file__).parent / "report.html"
     out.write_text(html, encoding="utf-8")
     print(f"\nReport written to {out}")
@@ -657,7 +681,7 @@ def badge(sev, text=None):
 
 
 def render_html(blockers, top10, driver_list, all_alerts, depot_stats, stats,
-                post_repair_faults, briefing, ai_source="template"):
+                post_repair_faults, briefing, ai_source="template", eval_report=None):
 
     # Briefing section
     briefing_html = briefing.replace("\n", "<br>\n") if briefing else ""
@@ -892,6 +916,7 @@ def render_html(blockers, top10, driver_list, all_alerts, depot_stats, stats,
       dispatch blockers, and action items below come from the deterministic scoring engine — not the AI.
       If this briefing conflicts with the tables below, trust the tables.
     </div>
+    {format_eval_html(eval_report) if eval_report else ""}
   </div>
 
   <!-- Stats bar -->
