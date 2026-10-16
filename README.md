@@ -22,6 +22,9 @@ python analyze.py
 ```bash
 # Run tests (66 automated checks, no dependencies):
 python tests.py
+
+# Run pytest suite (39 unit tests):
+pytest tests/
 ```
 
 **Requirements:** Python 3.10+. Optional: `pip install google-generativeai` for Gemini briefing, or Ollama running locally with qwen2.5-coder:1.5b.
@@ -152,7 +155,7 @@ The `Maple_Freight_New_Information/` folder contains `NEW_INFORMATION.pdf` and `
 
 1. **V-137 blocker verification:** Confirmed P0524 alert timestamp (2026-09-21T18:32Z = 14:32 ET) is after WO-5540 closed (07:40 ET). The already_fixed flag is False for this alert. V-137 appears correctly in dispatch blockers.
 
-2. **V-151 no work order:** Cross-checked all 9 rows of work_orders.csv manually. V-151 has only WO-5541 (scheduled Oct 5, oil service) — no misfire WO. Confirmed the P0300 alert is dated Sep 20, unaddressed.
+2. **V-108 backfill cross-check:** Confirmed both hamilton_backfill.csv alerts for V-108 post-date WO-5512 (closed Sep 9 for P0171 lean condition). P0217 event at 12:05 ET and P0524 event at 15:41 ET are completely different fault codes — not covered by that work order. V-108 correctly appears as a dispatch blocker with two post-repair critical faults.
 
 3. **D-17 firmware check:** Queried vehicles.csv — V-142 (D-17) firmware = 4.2.1. Queried all top-10 drivers by alert count — every one uses 4.2.1. No cross-firmware comparison is valid without adjustment.
 
@@ -162,9 +165,9 @@ The `Maple_Freight_New_Information/` folder contains `NEW_INFORMATION.pdf` and `
 
 6. **Alert count check:** Raw CSV has 2370 data rows + 10 Hamilton backfill = 2380 total. Script output: 2380 raw → 134 duplicates removed → 2246 unique → 2199 scored (23 OTA noise, 157 already fixed). Numbers reconcile.
 
-8. **V-108 backfill verification:** Confirmed P0217 alert (12:05 ET) and P0524 alert (15:41 ET) from hamilton_backfill.csv both post-date WO-5512 closed on Sep 9. V-108 correctly appears as the 4th dispatch blocker with post-repair fault warnings.
+7. **V-108 backfill verification:** Confirmed P0217 alert (12:05 ET) and P0524 alert (15:41 ET) from hamilton_backfill.csv both post-date WO-5512 closed on Sep 9. V-108 correctly appears as the 4th dispatch blocker with post-repair fault warnings.
 
-7. **AI output validation:** Tested qwen2.5-coder:0.5b — hallucinated V-270 (doesn't exist). Tested 1.5b — hallucinated V-19, V-20, V-205 (out of range), claimed "30% duplicates" (actual: ~6%), used markdown despite plain text instruction. Gemini 3.8-flash produced clean, accurate briefings when available. Validation function catches: hallucinated vehicle/driver IDs, repetition loops, false "no duplicates" claims, inflated duplicate percentages (>10% off actual), and non-blocker vehicles being called blockers. On failure, falls back to deterministic template briefing.
+8. **AI output validation:** Tested qwen2.5-coder:0.5b — hallucinated V-270 (doesn't exist). Tested 1.5b — hallucinated V-19, V-20, V-205 (out of range), claimed "30% duplicates" (actual: ~6%), used markdown despite plain text instruction. Gemini 3.8-flash produced clean, accurate briefings when available. Validation function catches: hallucinated vehicle/driver IDs, repetition loops, false "no duplicates" claims, inflated duplicate percentages (>10% off actual), and non-blocker vehicles being called blockers. On failure, falls back to deterministic template briefing.
 
 9. **Automated test suite:** `python tests.py` runs 66 tests covering data loading, deduplication, OTA filtering, scoring engine, classification boundaries, work order maps, post-repair fault detection, AI output validation (7 failure modes), template briefing content, full pipeline smoke test, and HTML output verification. All 66 pass.
 
