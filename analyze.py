@@ -396,7 +396,7 @@ def main():
 
     # Deduplicate
     alerts, dup_count = deduplicate(alerts_raw)
-    print(f"  {len(alerts_raw)} raw alerts, {dup_count} duplicates removed → {len(alerts)} unique")
+    print(f"  {len(alerts_raw)} raw alerts, {dup_count} duplicates removed -> {len(alerts)} unique")
 
     # Filter and score
     scored = []
