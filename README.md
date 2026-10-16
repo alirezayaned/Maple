@@ -47,13 +47,37 @@ Data files are expected at `data/` relative to `analyze.py` — the same layout 
 
 ---
 
-### 3. The "D-17 worst driver" claim needs a firmware correction before any coaching action
+### 3. V-108 (Hamilton Depot) has TWO critical post-repair faults from backfill — do NOT dispatch
 
-**Why it matters:** Coaching the wrong driver wastes time and damages morale. Acting on inflated numbers undermines trust in the safety program.
+**Why it matters:** V-108 is showing P0217 (engine overheating, 107°C) and P0524 (oil pressure critical, 88 kPa) — both "stop vehicle immediately" severity. These alerts arrived late via Hamilton Depot's gateway reconnection at 18:47 ET and were not visible until the backfill.
 
-**Evidence from the data:** D-17 (V-142) has 107 alerts — the most of any driver. However, all 10 of the top-ranked drivers by alert count use firmware **4.2.1**, which the vendor explicitly notes "detects more risky braking that earlier firmware missed" (August 2026 release note). Drivers on 4.1.8 vehicles generate substantially fewer harsh-event alerts under identical conditions. D-17 *does* still rank #1 after firmware adjustment, and has 4 HIGH-severity events — coaching is warranted. But the safety manager's framing ("tops the list every week") reflects firmware sensitivity, not necessarily the worst driving behaviour in the fleet.
+**Evidence from the data:** WO-5512 was closed on Sep 9 for V-108 (replaced intake manifold gasket, P0171 lean condition resolved). But these two new critical faults — P0217 at 12:05 ET and P0524 at 15:41 ET on Sep 21 — are completely different fault codes, unrelated to the gasket repair. V-108 has no open work order for overheating or oil pressure. This mirrors the V-137 pattern: a vehicle cleared after one repair develops a different critical fault.
 
-**Next action:** Safety manager schedules a 1:1 with D-17 focused on the 4 HIGH-severity events (not raw count). Separately, flag to IT/vendor that driver comparisons should be firmware-stratified until the whole fleet is on the same version.
+**Next action:** Open an emergency work order for V-108 tonight. Do not dispatch until both overheating and oil pressure are investigated. Hamilton maintenance lead should prioritise this alongside V-137.
+
+---
+
+> **Also notable (D-17 coaching):** D-17 (V-142) leads the fleet in alert count (107), but all top-10 drivers by count use firmware 4.2.1 which inflates harsh-event detection. D-17 still ranks #1 after adjustment and has 4 HIGH-severity events — coaching is warranted, but the safety manager should focus on those 4 events, not the raw count. Separately, flag to IT/vendor that driver comparisons should be firmware-stratified.
+
+---
+
+## What changed after the new information
+
+The `Maple_Freight_New_Information/` folder contains `NEW_INFORMATION.pdf` and `hamilton_backfill.csv` — 10 alerts that were held by Hamilton Depot's gateway while it was offline and delivered in bulk when the gateway reconnected at 18:47 ET on Sep 21.
+
+**Impact on the analysis:**
+
+1. **V-108 became a new dispatch blocker (the biggest change).** Two of the 10 backfill alerts are critical engine faults for V-108 (D-08, Hamilton Depot): P0217 (overheating, 107°C) and P0524 (oil pressure, 88 kPa). Both appeared after WO-5512 was closed on Sep 9 — a different fault pattern from the gasket repair. V-108 now joins V-137 as a "post-repair critical fault" vehicle. It was added to the top 3 (replacing D-17 coaching, which is still flagged but is less urgent than a dispatch safety decision).
+
+2. **D-17 replaced in the top 3.** The D-17 firmware coaching issue is important but not time-critical for tonight's dispatch. V-108's two critical faults require an immediate dispatch hold. D-17 coaching is noted below the top 3.
+
+3. **V-131 and V-126 speeding alerts surfaced.** V-131 was clocked at 131 km/h (posted limit 100) and V-126 at 104 km/h in a 60 km/h zone. These are HIGH-severity speeding events that didn't appear in the original data because Hamilton's gateway was down. They now appear in the driver leaderboard.
+
+4. **Total alert count increased.** Raw alerts went from 2370 to 2380. After deduplication: 2246 unique (was 2236). Scored alerts: 2199 (was 2189). The 10 backfill alerts contained no duplicates of existing data.
+
+5. **Dispatch blockers increased from 3 to 4.** V-102 (open WO), V-158 (open WO), V-137 (post-repair P0524), and now V-108 (post-repair P0217 + P0524).
+
+**How the tool handled it:** `analyze.py` automatically loads `Maple_Freight_New_Information/hamilton_backfill.csv` if it exists, merges the alerts into the main dataset before deduplication and scoring, and regenerates the full report. No manual intervention needed — the tool is designed for exactly this kind of late-arriving data.
 
 ---
 
@@ -129,7 +153,9 @@ Data files are expected at `data/` relative to `analyze.py` — the same layout 
 
 5. **P0420 reclassification:** DTC reference: P0420 = "Low — emissions, schedule repair." Vendor marks multiple P0420 alerts as HIGH. Our score = 10 (LOW). This is the main driver of the 326→41 HIGH reduction.
 
-6. **Alert count check:** Raw CSV has 2370 data rows. Script output: 2370 raw → 134 duplicates removed → 2236 unique → 23 OTA noise + 24 negative-maintenance filtered → 2189 scored. Numbers reconcile.
+6. **Alert count check:** Raw CSV has 2370 data rows + 10 Hamilton backfill = 2380 total. Script output: 2380 raw → 134 duplicates removed → 2246 unique → 2199 scored (23 OTA noise, 157 already fixed). Numbers reconcile.
+
+8. **V-108 backfill verification:** Confirmed P0217 alert (12:05 ET) and P0524 alert (15:41 ET) from hamilton_backfill.csv both post-date WO-5512 closed on Sep 9. V-108 correctly appears as the 4th dispatch blocker with post-repair fault warnings.
 
 7. **AI output validation:** Tested qwen2.5-coder:0.5b — hallucinated V-270 (doesn't exist). Tested 1.5b — used markdown despite being told not to but data was accurate. Gemini 3.8-flash produced clean, accurate briefings. Validation function catches all three failure modes (hallucinated IDs, repetition loops, empty output).
 
