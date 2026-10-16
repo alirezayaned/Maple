@@ -27,35 +27,37 @@ Data files are expected at `data/` relative to `analyze.py` — the same layout 
 
 ## Tonight's top 3 for Maple Freight
 
-### 1. V-137 has an unresolved critical oil-pressure fault — do NOT dispatch
+### 1. V-108 — two critical backfill faults, locate and hold immediately
 
-**Why it matters:** P0524 (oil pressure too low) is the most severe fault code in the reference: "stop vehicle immediately." Engine seizure risk is real.
+**Why it matters:** V-108 has **two separate Critical faults** that arrived via the Hamilton gateway backfill: P0217 (engine overheating, 107°C) and P0524 (oil pressure critical, 88 kPa). The DTC reference classifies both as Critical — "stop vehicle immediately." The vendor's MEDIUM labels do **not** override this. The alerts were delayed by hours; confirm the vehicle's current location and status now rather than assuming the events just happened at 18:47 ET.
 
-**Evidence from the data:** The maintenance team closed WO-5540 this morning at 07:40 ET for a *faulty coolant temperature sensor* (P0217 — overheating). That fix was correct. But at 14:32 ET the same vehicle fired a **P0524** — a completely different fault code, unrelated to the sensor replacement. The shop's technician note says "codes cleared. OK to dispatch," which referred to P0217, not P0524. V-137 is not in any open work order for oil pressure.
+**Evidence from the data:** Backfill alert A-120811: P0217, 107°C, event 12:05 ET (received 18:47 ET). Backfill alert A-707191: P0524, 88 kPa, event 15:41 ET (received 18:47 ET). V-108's existing work order (WO-5512, P0171 lean condition, closed Sep 9) covers neither fault — completely different fault codes. No open work order exists for overheating or oil pressure.
 
-**Next action:** Maintenance lead re-inspects V-137 tonight or first thing tomorrow (before 06:00 dispatch). Check oil level, pressure sensor, and pump. Do not dispatch until cleared.
-
----
-
-### 2. V-151 has an unaddressed HIGH-severity misfire (P0300) — needs a work order
-
-**Why it matters:** P0300 (random/multiple cylinder misfire) is rated High urgency: "inspect within 24 hours." The vehicle has been running for a day since the alert with no shop visit booked.
-
-**Evidence from the data:** V-151 fired P0300 on Sep 20 at 19:09 UTC (15:09 ET). The only work order for V-151 is WO-5541 — a routine oil service *scheduled for October 5*. No WO exists for the misfire. V-151 also triggered a HIGH speeding event on Sep 21 (96 km/h, no posted limit recorded), which shows the vehicle is still being actively driven.
-
-**Next action:** Open a work order for V-151 misfire inspection before the 06:00 dispatch window. If no bay is available tonight, do not dispatch V-151 tomorrow.
+**Next action:** Dispatch and maintenance locate V-108 now. Hold it off the road pending inspection of both faults. Do not dispatch until a new work order is opened, inspected, and cleared.
 
 ---
 
-### 3. V-108 (Hamilton Depot) has TWO critical post-repair faults from backfill — do NOT dispatch
+### 2. V-137 — critical oil-pressure fault after sensor repair, do NOT dispatch
 
-**Why it matters:** V-108 is showing P0217 (engine overheating, 107°C) and P0524 (oil pressure critical, 88 kPa) — both "stop vehicle immediately" severity. These alerts arrived late via Hamilton Depot's gateway reconnection at 18:47 ET and were not visible until the backfill.
+**Why it matters:** P0524 (oil pressure critical) means "stop vehicle immediately." This is a **separate, later fault** — the earlier P0217 sensor repair did not resolve it.
 
-**Evidence from the data:** WO-5512 was closed on Sep 9 for V-108 (replaced intake manifold gasket, P0171 lean condition resolved). But these two new critical faults — P0217 at 12:05 ET and P0524 at 15:41 ET on Sep 21 — are completely different fault codes, unrelated to the gasket repair. V-108 has no open work order for overheating or oil pressure. This mirrors the V-137 pattern: a vehicle cleared after one repair develops a different critical fault.
+**Evidence from the data:** WO-5540 closed at 07:40 ET for a faulty coolant temperature sensor (P0217). That fix was correct. But at 14:32 ET the same vehicle fired **P0524** — a different fault, unrelated to the sensor. The technician note "codes cleared. OK to dispatch" referred to P0217, not P0524. No open work order covers oil pressure on V-137.
 
-**Next action:** Open an emergency work order for V-108 tonight. Do not dispatch until both overheating and oil pressure are investigated. Hamilton maintenance lead should prioritise this alongside V-137.
+**Next action:** Maintenance re-inspects V-137 before 06:00 dispatch. Check oil level, pressure sensor, and pump. Do not dispatch until cleared.
 
 ---
+
+### 3. V-158 — HIGH misfire (P0300), confirm morning inspection before dispatch
+
+**Why it matters:** P0300 (random/multiple cylinder misfire) is High urgency: "inspect within 24 hours." A work order already exists (WO-5543, booked for Sep 22 morning) — the risk is the vehicle gets dispatched before that inspection completes.
+
+**Evidence from the data:** V-158 fired P0300 on Sep 21 at 17:09 ET. WO-5543 is scheduled for first thing Sep 22. The work order is there — it must be completed before dispatch.
+
+**Next action:** Confirm WO-5543 inspection finishes before V-158 is released. If the bay is not available in time, hold V-158.
+
+---
+
+> **Also flag — Speeding:** V-126 (D-26) was clocked at **104 km/h in a 60 km/h zone (44 km/h over)**, vendor-rated MEDIUM — deserves a safety review even though it doesn't outrank the critical engine faults. V-131 (D-31) reached **131 km/h with no posted limit on record** — severity is unknown, not safe to dismiss; flag for review. Both alerts arrived in the Hamilton backfill.
 
 > **Also notable (D-17 coaching):** D-17 (V-142) leads the fleet in alert count (107), but all top-10 drivers by count use firmware 4.2.1 which inflates harsh-event detection. D-17 still ranks #1 after adjustment and has 4 HIGH-severity events — coaching is warranted, but the safety manager should focus on those 4 events, not the raw count. Separately, flag to IT/vendor that driver comparisons should be firmware-stratified.
 
@@ -71,7 +73,7 @@ The `Maple_Freight_New_Information/` folder contains `NEW_INFORMATION.pdf` and `
 
 2. **D-17 replaced in the top 3.** The D-17 firmware coaching issue is important but not time-critical for tonight's dispatch. V-108's two critical faults require an immediate dispatch hold. D-17 coaching is noted below the top 3.
 
-3. **V-131 and V-126 speeding alerts surfaced.** V-131 was clocked at 131 km/h (posted limit 100) and V-126 at 104 km/h in a 60 km/h zone. These are HIGH-severity speeding events that didn't appear in the original data because Hamilton's gateway was down. They now appear in the driver leaderboard.
+3. **V-131 and V-126 speeding alerts surfaced.** V-126 (D-26) was clocked at 104 km/h in a 60 km/h zone (44 km/h over). V-131 (D-31) reached 131 km/h with **no posted limit on record** — excess speed is unknown, not safe to assume acceptable. These alerts arrived in the backfill and now appear in the driver leaderboard.
 
 4. **Total alert count increased.** Raw alerts went from 2370 to 2380. After deduplication: 2246 unique (was 2236). Scored alerts: 2199 (was 2189). The 10 backfill alerts contained no duplicates of existing data.
 
